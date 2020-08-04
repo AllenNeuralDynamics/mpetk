@@ -1,0 +1,14 @@
+linux_install_paths:
+    install: ~/.config/AIBS_MPE
+    local_config: config
+    local_log_config: logs
+    python: /opt/mcpython3
+services:
+    log_server: 10.128.60.82:9000
+    python_index: http://aibspi:3141/aibs/dev
+    zookeeper: aibspi:2181
+windows_install_paths:
+    install: /ProgramData/AIBS_MPE
+    local_config: config
+    local_log_config: logs
+    python: /mcpython3
