@@ -1,5 +1,6 @@
 import enum
 import logging
+from sys import exit
 
 from . dltools import make_socket
 from . pidtools import make_pid_file, PidFileStaleError, PidFileAlreadyRunningError
@@ -10,7 +11,7 @@ class InstanceLocks(enum.Enum):
     DAEMON_LOCK = 2
 
 
-def one_instance(mode: InstanceLocks = InstanceLocks.PID_FILE, clobber_stale: bool = False):
+def one_instance(mode: InstanceLocks = InstanceLocks.PID_FILE, clobber_stale: bool = True):
     """
     A decorator intended for main() so that an application won't start twice.
     :param mode: An assortment of possible lock mechanisms

@@ -2,9 +2,9 @@
 
 __author__ = """ross hytnen"""
 __email__ = 'rossh@alleninstitute.org'
-__version__ = '0.1.3'
+__version__ = '0.1.5'
 __url__ = 'http://aibspi/piddl.git'
 
 from .piddl import InstanceLocks
 from .piddl import one_instance
-from .pidtools import PidFileStaleError, PidFileError, PidFileAlreadyRunningError
+from .pidtools import PidFileStaleError, PidFileError, PidFileAlreadyRunningError, make_kill_file, delete_kill_file, register_kill_callback
