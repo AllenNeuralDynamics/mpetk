@@ -1,4 +1,4 @@
-import mpeconfig
+from .. import mpeconfig
 from functools import partial
 import json
 import requests

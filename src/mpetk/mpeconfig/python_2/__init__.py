@@ -7,7 +7,7 @@ import socket
 
 __author__ = """ben sutton"""
 __email__ = "ben.sutton@alleninstitute.org"
-__version__ = "1.2.2"
+__version__ = "1.2.7"
 
 from .config_server import ConfigServer  # noqa
 from .mpeconfig import fetch_configuration

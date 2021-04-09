@@ -2,18 +2,16 @@
 A small module to specifically get MPE Configurations form our zookeeper quorum.
 It supports local configurations and default configurations in the cases where zookeeper is not available.
 """
-from __future__ import print_function
-
 import atexit
 import copy
 import datetime
+import getpass
 import inspect
 import logging
 import logging.config
 import logging.handlers
 import os
 import platform
-import socket
 import shutil
 from collections import namedtuple
 from hashlib import md5
@@ -28,12 +26,10 @@ from .config_server import ConfigServer
 
 # yaml.add_representer(dict, lambda self, data: yaml.representer.SafeRepresenter.represent_dict(self, data.items()))
 
-# config = mpeconfig.source_configuration("bfi", version="testv0.1.2", fetch_logging_config=True)
-
-# log_factory = logging.getLogRecordFactory()
-resource_path = os.path.dirname(__file__) + "/resources"
-default_logging_dict = yaml.load(open(resource_path + "/mpe_defaults_logging.yml", "r"), Loader=loader.Loader)
-default_config_dict = yaml.load(open(resource_path + "/mpe_defaults_configuration.yml", "r"), Loader=loader.Loader)
+log_factory = logging.getLogRecordFactory()
+resource_path = f"{os.path.dirname(__file__)}/resources"
+default_logging_dict = yaml.load(open(f"{resource_path}/mpe_defaults_logging.yml", "r"), Loader=loader.Loader)
+default_config_dict = yaml.load(open(f"{resource_path}/mpe_defaults_configuration.yml", "r"), Loader=loader.Loader)
 
 aibs_session = ""
 
@@ -45,35 +41,28 @@ class WebHandler(logging.handlers.SocketHandler):
     logging.info('My project is starting up', extra = {'weblog': True})
     """
 
-    def __init__(self, host, port, module_name, module_version):
-        super(WebHandler, self).__init__(host, port)
-        self.module_name = module_name
-        self.module_version = module_version
+    def __init__(self, host, port):
+        super().__init__(host, port)
 
     def emit(self, record):
-
-        if hasattr(record, "weblog") or (record.levelno > logging.INFO):
-            record.rig_name = os.getenv('aibs_rig_id', 'unknown')
-            record.comp_id = os.getenv('aibs_comp_id', socket.gethostname())
-            record.version = self.module_version
-            record.project = self.module_name
-            super(WebHandler, self).emit(record)
+        if hasattr(record, "weblog"):
+            super().emit(record)
 
 
 def source_configuration(
-    project_name,
-    hosts="aibspi:2181",
-    use_local_config=False,
-    send_start_log=True,
-    fetch_logging_config=True,
-    fetch_project_config=True,
-    version=None,
-    rig_id=None,
-    comp_id=None
+    project_name: str,
+    hosts: str = "aibspi.corp.alleninstitute.org:2181",
+    use_local_config: bool = False,
+    send_start_log: bool = True,
+    fetch_logging_config: bool = True,
+    fetch_project_config: bool = True,
+    version: str = None,
+    rig_id: str = None,
+    comp_id: str = None
 ):
     """
     Connects to the quorum and searches for the following paths:
-    /mpe_defaults_27/[configuration | logging]
+    /mpe_defaults/[configuration | logging]
     /[projects | hardware]/<project_name>/defaults/[configuration | logging]
     /rigs/<rig_id>/[projects | hardware]/[configuration | logging]
     /rigs/<rig_id>
@@ -85,6 +74,8 @@ def source_configuration(
     :param hosts: The quorum to connect to (currently there is only aibspi)
     :param send_start_log: Whether or not to send a log to the webserver (not desirable for libraries) [default = True]
     :param version: Current software version.  Can be specified but will be auto-detected if None
+    :param rig_id: override for rig_id
+    :param comp_id: override for comp_id
     :raises: KeyError if it can't find the default configuration
     :return:
     """
@@ -124,7 +115,7 @@ def source_configuration(
             print("Looking for local configurations ...")
             return build_local_configuration(project_name, fetch_logging_config, fetch_project_config, send_start_log)
 
-        mpe_defaults = fetch_configuration(zk, "/mpe_defaults_27/configuration", required=True)
+        mpe_defaults = fetch_configuration(zk, f"/mpe_defaults/configuration", required=True)
         local_log_path, local_config_path = get_platform_paths(mpe_defaults, project_name)
         ensure_path(local_log_path)
         ensure_path(local_config_path)
@@ -140,7 +131,7 @@ def source_configuration(
             return project_config  # dict_to_namedtuple(project_config)
 
 
-def ensure_path(path):
+def ensure_path(path: str):
     """
     if the path for logging and configuration storage does not exist, make it.  Logging configuration will fail if
     the directory does not exist.
@@ -180,17 +171,16 @@ def build_local_configuration(
     if fetch_project_config:
         if os.path.isfile(local_config_path):
             project_config = yaml.load(open(local_config_path, "r"), Loader=loader.Loader)
-            # project_config = {**default_config_dict, **project_config}
             project_config = deep_merge(copy.deepcopy(default_config_dict), project_config)
-
         else:
-            logging.warning("Could not find a local project configuration: " + local_config_path + ".")
+            logging.warning(f"Could not find a local project configuration: {local_config_path}.")
             project_config = default_config_dict
 
         return project_config
 
 
-def setup_logging(project_name, local_log_path, log_config, send_start_log, version,  rig_id = None, comp_id = None):
+def setup_logging(project_name: str, local_log_path: str, log_config: dict, send_start_log: bool, version: str,
+                  rig_id: str = None, comp_id: str = None):
     """
     Logging setup consists of
       1.  applying the logging configuration to the Python logging module
@@ -202,19 +192,30 @@ def setup_logging(project_name, local_log_path, log_config, send_start_log, vers
     :param log_config:  The dictionary containing the logging configuration
     :param send_start_log: Whether or not to send a log to the webserver (not desirable for libraries) [default = True]
     :param version: The version of the software to record in the log record
+    :param rig_id: Rig ID Override
+    :param comp_id: Comp ID Override
     """
-    logging_level_map = {"START_STOP": logging.WARNING + 5, "ADMIN": logging.WARNING + 6}
-    logfile = os.path.dirname(local_log_path) + "/" + project_name
-    log_config["handlers"]["file_handler"]["filename"] = logfile + ".log"
-    log_config["handlers"]["debug_file_handler"]["filename"] = logfile + "_error.log"
+    logging_level_map = {"START_STOP": logging.WARNING + 5, "ADMIN": logging.WARNING + 6, "LIMS": logging.WARNING + 7}
+    logfile = f"{os.path.dirname(local_log_path)}/{project_name}"
+    log_config["handlers"]["file_handler"]["filename"] = f"{logfile}.log"
+    log_config["handlers"]["debug_file_handler"]["filename"] = f"{logfile}_error.log"
 
-    aibs_session = md5(str(datetime.datetime.now())).hexdigest()[:7]
+    aibs_session = md5(str(datetime.datetime.now()).encode()).hexdigest()[:7]
 
+    def record_factory(*args, **kwargs):
+        record = log_factory(*args, **kwargs)
+        record.rig_name = rig_id or os.getenv("aibs_rig_id", "undefined")
+        record.comp_id = comp_id or os.getenv("aibs_comp_id", "undefined")
+        record.version = version
+        record.project = project_name
+        return record
+
+    logging.setLogRecordFactory(record_factory)
     logging.config.dictConfig(log_config)
 
-    host = '10.128.108.106' # log_config["handlers"]["socket_handler"]["host"]
-    port = 9000 # log_config["handlers"]["socket_handler"]["port"]
-    handler = WebHandler(host, int(port), project_name, version)
+    host = log_config["handlers"]["socket_handler"]["host"]
+    port = log_config["handlers"]["socket_handler"]["port"]
+    handler = WebHandler(host, int(port))
     handler.level = logging.INFO
 
     for level_name, level_no in logging_level_map.items():
@@ -227,12 +228,16 @@ def setup_logging(project_name, local_log_path, log_config, send_start_log, vers
         setattr(logging, level_name.lower(), level_func)
 
     logging.getLogger().addHandler(handler)
+    logging.getLogger(project_name).addHandler(handler)
 
     if send_start_log:
-        logging.log(logging_level_map["START_STOP"], "Action, Start, log_session, " + aibs_session)
+        logging.log(
+            logging_level_map["START_STOP"], f"Action, Start, log_session, {aibs_session}, WinUserID, {getpass.getuser()}")
 
         def send_stop_log():
-            logging.log(logging_level_map["START_STOP"], "Action, Stop, log_session, " + aibs_session)
+            logging.log(
+                logging_level_map["START_STOP"],
+                f"Action, Stop, log_session, {aibs_session}, WinUserID, {getpass.getuser()}")
 
         atexit.register(send_stop_log)
 
@@ -250,49 +255,58 @@ def get_platform_paths(config, project_name):
     else:
         paths = config["linux_install_paths"]
         paths["install"] = os.path.expanduser(paths["install"])
-    local_log_path = paths["install"] + "/" + project_name + "/" + paths["local_log_config"] + "/logging.yml"
-    local_config_path = paths["install"] + "/" + project_name + "/" + paths["local_config"] + "/" + project_name + ".yml"
+    local_log_path = f'{paths["install"]}/{project_name}/{paths["local_log_config"]}/logging.yml'
+    local_config_path = f'{paths["install"]}/{project_name}/{paths["local_config"]}/{project_name}.yml'
     return local_log_path, local_config_path
 
 
-def compile_remote_configuration(zk, project_name, config_type="configuration", rig_id = None, comp_id = None):
+def compile_remote_configuration(zk, project_name, config_type="configuration", rig_id=None, comp_id=None):
     """
     Look for various pieces of the configuration in the zookeeper tree
     :param zk: An active zookeeper connection
     :param project_name: the project name to look for
     :param config_type [hardware | projects ]
+    :param rig_id: Rig ID Override
+    :param comp_id: Comp ID Override
     :return: Dictionary of merged configurations
     """
+
+    project_config = {}
+    rig_config = {}
+    comp_config = {}
+    shared_config = {"shared": {}}
 
     rig_name = rig_id or os.environ.get("aibs_rig_id", "")
     comp_name = comp_id or os.environ.get("aibs_comp_id", "")
 
-    mpe_defaults = fetch_configuration(zk, "/mpe_defaults_27/" + config_type, required=True)
+    mpe_defaults = fetch_configuration(zk, f"/mpe_defaults/{config_type}", required=True)
 
-    if zk.exists("/projects/" + project_name + "/defaults/" + config_type):
-        project_config = fetch_configuration(zk, "/projects/" + project_name + "/defaults/" + config_type)
-        rig_config = fetch_configuration(zk, "/rigs/" + rig_name + "/projects/" + project_name + "/" + config_type)
-        comp_config = fetch_configuration(zk, "/rigs/" + comp_name + "/projects/" + project_name + "/" + config_type)
-        shared_rig_config = fetch_configuration(zk, "/rigs/" + rig_name)
-        shared_comp_config = fetch_configuration(zk, "/rigs/" + comp_name)
-    elif zk.exists("/hardware/" + project_name + "/defaults/" + config_type):
-        project_config = fetch_configuration(zk, "/hardware/" + project_name + "/defaults/" + config_type)
-        rig_config = fetch_configuration(zk, "/rigs/" + rig_name + "/projects/" + project_name + "/" + config_type)
-        comp_config = fetch_configuration(zk, "/rigs/" + comp_name + "/projects/" + project_name + "/" + config_type)
-        shared_rig_config = fetch_configuration(zk, "/rigs/" + rig_name)
-        shared_comp_config = fetch_configuration(zk, "/rigs/" + comp_name)
+    if zk.exists(f"/projects/{project_name}/defaults/{config_type}"):
+        project_config = fetch_configuration(zk, f"/projects/{project_name}/defaults/{config_type}")
+        rig_config = fetch_configuration(zk, f"/rigs/{rig_name}/projects/{project_name}/{config_type}")
+        comp_config = fetch_configuration(zk, f"/rigs/{comp_name}/projects/{project_name}/{config_type}")
+        shared_rig_config = fetch_configuration(zk, f"/rigs/{rig_name}")
+        shared_comp_config = fetch_configuration(zk, f"/rigs/{comp_name}")
+
+    elif zk.exists(f"/hardware/{project_name}/defaults/{config_type}"):
+        project_config = fetch_configuration(zk, f"/hardware/{project_name}/defaults/{config_type}")
+        rig_config = fetch_configuration(zk, f"/rigs/{rig_name}/hardware/{project_name}/{config_type}")
+        comp_config = fetch_configuration(zk, f"/rigs/{comp_name}/hardware/{project_name}/{config_type}")
+        shared_rig_config = fetch_configuration(zk, f"/rigs/{rig_name}")
+        shared_comp_config = fetch_configuration(zk, f"/rigs/{comp_name}")
 
     else:
         if config_type != "logging":
-            logging.warning("Found no configuration available for " + project_name)
+            logging.warning(f"Found no configuration available for {project_name}")
         return mpe_defaults
 
     rtn_dict = deep_merge(copy.deepcopy(mpe_defaults), project_config)
     rtn_dict = deep_merge(copy.deepcopy(rtn_dict), rig_config)
     rtn_dict = deep_merge(copy.deepcopy(rtn_dict), comp_config)
+    rtn_dict = deep_merge(copy.deepcopy(rtn_dict), shared_config)
     shared_dict = deep_merge(copy.deepcopy(shared_rig_config), shared_comp_config)
     if shared_dict:
-        rtn_dict["shared"] = shared_dict
+        rtn_dict['shared'] = shared_dict
     return rtn_dict
 
 
@@ -311,19 +325,19 @@ def fetch_configuration(server, config_path, required=False):
         config = yaml.load(server[config_path], Loader=loader.Loader)
     except (AttributeError, ParserError) as err:
         if required:
-            logging.error(config_path + " is not valid YAML: " + err)
+            logging.error(f"{config_path} is not valid YAML: {err}")
             exit(1)
     except KeyError:
         if required:
-            logging.error("Could not find " + config_path + ".")
+            logging.error(f"Could not find {config_path}.")
             exit(1)
 
-    return config
+    return config if config else {}
 
 
 def md5_equal(a, b):
-    a_s = str(a)
-    b_s = str(b)
+    a_s = str(a).encode()
+    b_s = str(b).encode()
     return md5(a_s).hexdigest() == md5(b_s).hexdigest()
 
 
@@ -335,17 +349,15 @@ def cache_remote_config(configuration, config_path):
     :param config_path: fully qualified path to save configuration.
     :return:
     """
-    if not os.path.exists(os.path.dirname(config_path)):
-        os.makedirs(os.path.dirname(config_path))
+    os.makedirs(os.path.dirname(config_path), exist_ok=True)
     if os.path.isfile(config_path):
         config = yaml.load(open(config_path), Loader=loader.Loader)
-        # if md5_equal(config, configuration):
         if config == configuration:
             return
 
         timestamp = datetime.datetime.strftime(datetime.datetime.now(), "%y%m%d-%H%M%S")
-        backup_file = config_path + "." + timestamp + ".bck"
-        logging.info("Copying previous configuration to " + backup_file)
+        backup_file = f"{config_path}.{timestamp}.bck"
+        logging.info(f"Copying previous configuration to {backup_file}")
         shutil.copyfile(config_path, backup_file)
 
     with open(config_path, "w") as f:
@@ -376,7 +388,7 @@ def deep_merge(dict_prime, dict_mod):
     for key, value in dict_mod.items():
         if isinstance(value, dict):
             if key not in dict_prime:
-                dict_prime[key] = type(value)()
+                dict_prime[key] = type(value)()  # For subclasses of dict
             deep_merge(dict_prime[key], dict_mod[key])
         else:
             dict_prime[key] = value

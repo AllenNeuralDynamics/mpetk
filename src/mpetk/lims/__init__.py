@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-import mpeconfig
+from mpetk import mpeconfig
 
 __author__ = """ross hytnen"""
 __email__ = "rossh@alleninstitute.org"
