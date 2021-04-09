@@ -4,7 +4,7 @@ from mpetk import mpeconfig
 
 __author__ = """ross hytnen"""
 __email__ = "rossh@alleninstitute.org"
-__version__ = '3.4.12'
+__version__ = '0.1.0'
 
 
 from . import lims_requests

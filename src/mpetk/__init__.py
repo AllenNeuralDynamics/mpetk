@@ -6,3 +6,4 @@ from . import zro
 from . import aibsmw
 
 
+__version__ = '0.1.0'
