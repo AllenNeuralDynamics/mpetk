@@ -18,3 +18,32 @@ values =
 [bumpversion:file:build.py]
 search = version = '{current_version}'
 replace = version = '{new_version}'
+
+[bumpversion:file:src/mpetk/__init__.py]
+search = {current_version}
+replace = {new_version}
+
+[bumpversion:file:src/mpetk/lims/__init__.py]
+search = {current_version}
+replace = {new_version}
+
+[bumpversion:file:src/mpetk/aibsmw/__init__.py]
+search = {current_version}
+replace = {new_version}
+
+[bumpversion:file:src/mpetk/zro/__init__.py]
+search = {current_version}
+replace = {new_version}
+
+[bumpversion:file:src/mpetk/mpeconfig/python_3/__init__.py]
+search = {current_version}
+replace = {new_version}
+
+[bumpversion:file:src/mpetk/mpeconfig/python_2/__init__.py]
+search = {current_version}
+replace = {new_version}
+
+
+[bumpversion:file:src/mpetk/piddl/__init__.py]
+search = {current_version}
+replace = {new_version}
