@@ -75,7 +75,7 @@ def pid_filename(pid_name: str = None, pid_dir: str = None) -> str:
 def kill_filename(app_name: str = None) -> str:
     """
     Generates a reproducible Kill Filename.
-    :param app_name: 
+    :param app_name:
     :return: String representing the name of the kill file (non-fully qualified)
     """
     return f"{app_name}.kill" if app_name else f"{sys.argv[0]}.kill"
@@ -123,7 +123,7 @@ def make_kill_file(app_name: str = None):
         raise PidFileError(str(e))
 
     kill_file_name = os.path.join(DEFAULT_KF_DIR, kill_filename(app_name))
-    
+
     delete_kill_file(app_name)
 
     if not os.path.exists(kill_file_name):
@@ -219,4 +219,4 @@ def atexit_handler(filename: str):
     if kf_obs:
         kf_obs.stop()
     remove_xid_file(filename)
-    
+
