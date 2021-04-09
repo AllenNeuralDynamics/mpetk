@@ -7,7 +7,7 @@ import platform
 import re
 import subprocess
 
-import mpeconfig
+from .. import mpeconfig
 import requests
 import yaml
 import zmq
