@@ -116,7 +116,7 @@ class SystemStatus(BasePubRepDevice):
                              "ping","uptime")
         
         #clear the terminal
-        #print(chr(python_2) + "[2J")  # linux?
+        #print(chr(27) + "[2J")  # linux?
         os.system("cls")
 
         print(header)

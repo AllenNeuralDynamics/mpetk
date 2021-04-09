@@ -47,7 +47,7 @@ class RemoteObject(object):
             if not supplied.
 
     Example:
-        
+
         class MyRemoteObject(RemoteObject):
             def __init__(self, ip, port):
                 super(MyRemoteObject, self).__init__(ip, port)
@@ -372,7 +372,7 @@ class RemoteObject(object):
                     self._async_callbacks[callable_name].append(callback)
                 else:
                     self._async_callbacks[callable_name] = [callback]
-                    
+
         else:
             error = ZroError(self, callable_name, 2)
             logging.warning(error)
@@ -409,7 +409,7 @@ class RemoteObject(object):
                         callable_name = to_call.__name__           # py3
                 elif inspect.ismethod(to_call):
                     try:
-                        callable_name = to_call.im_func.func_name  # py2 
+                        callable_name = to_call.im_func.func_name  # py2
                     except AttributeError:
                         callable_name = to_call.__func__.__name__  # py3
                 else:
@@ -553,6 +553,8 @@ class RemoteObject(object):
                 result = ZroError(self, command, 2)
 
             try:
+                if isinstance(result, ZroError) and self.__send_func != self.__send_pyobj:
+                    result = result.to_JSON()
                 self.__send_func(result)
             except TypeError as e:
                 logging.exception("Failed to serialize response: {}".format(result))
@@ -596,7 +598,7 @@ class RemoteObject(object):
             float: uptime in seconds
         """
         return time.clock()-self._start_time
-    
+
     def get_uptime(self):
         """
         Deprecated.
@@ -1289,7 +1291,7 @@ class RemoteDummy(RemoteObject):
                     logging.exception(e)
                 return val
         return True
-    
+
 ############################################################################
 
 if __name__ == '__main__':

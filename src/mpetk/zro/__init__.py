@@ -8,4 +8,4 @@ from .error import *
 from .misc import serve
 from .config import ConfigFile
 
-__version__ = "1.1.4"
+__version__ = "1.2.0"

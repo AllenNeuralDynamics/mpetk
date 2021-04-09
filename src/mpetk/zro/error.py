@@ -40,6 +40,16 @@ class ZroError(Exception):
         self.error_code = error_code
         super(ZroError, self).__init__(message)
 
+    def to_JSON(self):
+        return {
+            'ZroError': str(type(self.get_specific_error())), # this key lets zro convert this on the receive side
+            'error_code': self.error_code,
+            'message': str(self.message)
+        }
+
+    @staticmethod
+    def from_dict(d):
+        return ZroError(error_code=d['error_code'], message=d['message']).get_specific_error()
 
     def get_specific_error(self, to_raise=False):
         """ Get the appropriate ZroError for the error type. """

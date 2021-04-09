@@ -9,3 +9,5 @@ if PYTHON_VERSION == 3:
     from .python_3 import config_server, mpeconfig
 
 
+def source_configuration(param):
+    return None

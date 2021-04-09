@@ -7,7 +7,7 @@ proxy.py
 Proxy device and manager for ZRO devices.
 
 `DeviceProxy` is a remote object proxy designed to interact with objects
-extending `BasePubRepDevice` (from device.py). 
+extending `BasePubRepDevice` (from device.py).
 
 `DeviceManager` is a remote object manager that uses a json config file to
 create and manage remote objects.  It can ping devices, get uptime, platform
@@ -283,7 +283,7 @@ class DeviceProxy(object):
     """
     _context = zmq.Context()
     _context.setsockopt(zmq.LINGER, 1)
-    
+
     def __init__(self,
                  ip="localhost",
                  port=None,
@@ -383,6 +383,8 @@ class DeviceProxy(object):
                   "kwargs": kwargs}
         self.__dict__['send'](packet)
         response = self.__dict__['recv']()
+        if isinstance(response, dict) and response.get('ZroError', False):
+            response = ZroError.from_dict(response)
         if isinstance(response, ZroError):
             raise ZroError(message=str(response))
         return response
@@ -395,7 +397,7 @@ class DeviceProxy(object):
 
 
     @classmethod
-    def as_gui(cls, 
+    def as_gui(cls,
                ip="localhost",
                port=None,
                timeout=10.0,
