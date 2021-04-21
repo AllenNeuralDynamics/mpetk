@@ -14,9 +14,9 @@ use_plugin('python.flake8')
 #use_plugin('python.sphinx')
 default_task = ['install_dependencies',
                 'analyze',
-                'run_unit_tests',]
+                'run_unit_tests',
                 #'sphinx_generate_documentation',
-                #'publish']
+                'publish']
 
 # project meta
 name = 'mpetk'
