@@ -77,6 +77,6 @@ def initialize(project):
                          {'console_scripts': [
                              'zk=zk:main']})
 
-    for d in ['aibsmw', 'lims', 'mpeconfig', 'piddl', 'zro']:
+    for d in ['mptk/aibsmw', 'mptk/lims', 'mpetk/mpeconfig', 'mpetk/piddl', 'mpetk/zro']:
         add_files_to_project(project, d)
 
