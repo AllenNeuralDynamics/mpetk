@@ -1,0 +1,12 @@
+variables:
+  ARTIFACT_PATH: dist/
+  PY_VERSION: '3.6'                          # Set Python version if you must
+  PYTHONIOENCODING: 'utf-8'
+build:
+  script:
+    - python -m pip install pyinstaller==3.6
+    - python -m pip install pybuilder==0.11.17
+    - pyb_ -X
+
+
+include: 'http://aibspi.corp.alleninstitute.org/infrastructure/mpeci/raw/master/resources/gitlab-ci-template.yml'
