@@ -39,6 +39,8 @@ def add_files_to_project(project, path):
             if pattern in file.lower():
                 project.include_file(path, directory + '/' + file)
 
+
+
 @init
 def initialize(project):
     project.set_property('verbose', True)
@@ -79,4 +81,11 @@ def initialize(project):
 
     for d in ['mptk/aibsmw', 'mptk/lims', 'mpetk/mpeconfig', 'mpetk/piddl', 'mpetk/zro']:
         add_files_to_project(project, d)
-
+    project.install_file('lib/site-packages/mpetk/mpeconfig/python_3/resources',
+                         'mpetk/mpeconfig/python_3/resources/mpe_defaults_configuration.yml')
+    project.install_file('lib/site-packages/mpetk/mpeconfig/python_3/resources',
+                         'mpetk/mpeconfig/python_3/resources/mpe_defaults_logging.yml')
+    project.install_file('lib/site-packages/mpetk/mpeconfig/python_2/resources',
+                         'mpetk/mpeconfig/python_2/resources/mpe_defaults_configuration.yml')
+    project.install_file('lib/site-packages/mpetk/mpeconfig/python_2/resources',
+                         'mpetk/mpeconfig/python_2/resources/mpe_defaults_logging.yml')
