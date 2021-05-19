@@ -2,7 +2,7 @@
 
 __author__ = """ross hytnen"""
 __email__ = 'rossh@alleninstitute.org'
-__version__ = '0.2.0.dev2'
+__version__ = '0.2.0.dev3'
 __url__ = 'http://aibspi/piddl.git'
 
 from .piddl import InstanceLocks

@@ -396,43 +396,6 @@ class DeviceProxy(object):
         self.__dict__['req_socket'].close()
 
 
-    @classmethod
-    def as_gui(cls,
-               ip="localhost",
-               port=None,
-               timeout=10.0,
-               serialization='pickle',
-               command_list=None,
-               attribute_list=None,
-               ):
-        from PyQt4 import QtGui
-        app = QtGui.QApplication([])
-        qwidget = DeviceProxy.as_qwidget(ip=ip,
-                                         port=port,
-                                         timeout=timeout,
-                                         serialization=serialization,
-                                         command_list=command_list,
-                                         attribute_list=attribute_list,)
-        qwidget.setWindowTitle(ip)
-        qwidget.show()
-        app.exec_()
-
-    @classmethod
-    def as_qwidget(cls,
-                   ip="localhost",
-                   port=None,
-                   timeout=10.0,
-                   serialization="pickle",
-                   command_list=None,
-                   attribute_list=None,
-                   ):
-        from .gui import ProxyWidget
-        prox = DeviceProxy(ip, port, timeout=timeout, serialization=serialization)
-        return ProxyWidget(proxy=prox,
-                           command_list=command_list,
-                           attribute_list=attribute_list,)
-
-
 Proxy = DeviceProxy
 
 if __name__ == '__main__':
