@@ -2,6 +2,8 @@ variables:
   ARTIFACT_PATH: dist/
   PY_VERSION: '3.6'                          # Set Python version if you must
   PYTHONIOENCODING: 'utf-8'
+  CONDA_SPECS: pip=10.0.1
+  
 build:
   script:
     - python -m pip install pyinstaller==3.6
