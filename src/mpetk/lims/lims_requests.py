@@ -50,7 +50,7 @@ def post(url, data, *args, timeout=None):
         t1 = datetime.datetime.now()
         response = requests.post(_request, json=data, timeout=timeout)
         t_delta = datetime.datetime.now() - t1
-    except exceptions.LIMSUnavailableError:
+    except requests.exceptions.ConnectionError:
         raise exceptions.LIMSUnavailableError(f"Post request to {_request} failed with no response.")
     logging.lims(f'LIMS POST: {_request}, status code: {response.status_code}, {t_delta.total_seconds():.2f} seconds',
                  extra={'weblog': True})
