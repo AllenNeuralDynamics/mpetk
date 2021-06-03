@@ -1,4 +1,4 @@
-from .. import mpeconfig
+import mpeconfig
 from functools import partial
 import json
 import requests
@@ -9,9 +9,16 @@ import datetime
 from pprint import pprint, pformat
 
 _module = __import__(__name__)
-
 _config = mpeconfig.source_configuration("limstk", fetch_logging_config=False, send_start_log=False)
 
+def lims_logging_spoof(log_message, extra=None):
+    if extra:
+        logging.info(log_message, extra=extra)
+    else:
+        logging.info(log_message)
+
+if not hasattr(logging, 'lims'):
+    setattr(logging, 'lims', lims_logging_spoof)
 
 def request(url, *args, timeout=None):
     try:
@@ -52,6 +59,8 @@ def post(url, data, *args, timeout=None):
         t_delta = datetime.datetime.now() - t1
     except exceptions.LIMSUnavailableError:
         raise exceptions.LIMSUnavailableError(f"Post request to {_request} failed with no response.")
+    except requests.exceptions.ConnectionError:
+        raise requests.exceptions.ConnectionError(f"Post request to {_request} timed out trying to post")
     logging.lims(f'LIMS POST: {_request}, status code: {response.status_code}, {t_delta.total_seconds():.2f} seconds',
                  extra={'weblog': True})
     logging.info(f'POST data: {pformat(json.dumps(data))}')
