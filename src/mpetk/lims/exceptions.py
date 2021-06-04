@@ -8,7 +8,7 @@ class LIMSUnavailableError(Exception):
 class LIMSBadResponse(Exception):
 
     """
-    Bad return codes 404, 
+    Bad return codes
     """
     def __inti__(self):
         self.response_code = None
