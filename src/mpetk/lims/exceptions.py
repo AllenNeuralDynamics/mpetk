@@ -5,6 +5,14 @@ class LIMSUnavailableError(Exception):
 
     pass
 
+class LIMSBadResponse(Exception):
+
+    """
+    Bad return codes 404, 
+    """
+    def __inti__(self):
+        self.response_code = None
+        self.response = None
 
 class LIMSURLFormatError(Exception):
     """

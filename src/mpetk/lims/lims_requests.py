@@ -21,6 +21,14 @@ def lims_logging_spoof(log_message, extra=None):
 if not hasattr(logging, 'lims'):
     setattr(logging, 'lims', lims_logging_spoof)
 
+def raise_bad_response(post_type, response, request, status_code):
+    err = exceptions.LIMSBadResponse(
+            "{} request to {} failed with status {}.".format(post_type, request, status_code)
+        )
+    err.status_code = status_code
+    err.response = response
+    raise err
+
 def request(url, *args, timeout=None):
     try:
         _request = url.format(*args).replace(";", "%3B")
@@ -31,9 +39,8 @@ def request(url, *args, timeout=None):
     t_delta = datetime.datetime.now() - t1
     logging.lims(f'LIMS GET: {_request}, status code: {response.status_code}, {t_delta.total_seconds():.2f} seconds')
     if response.status_code != 200:
-        raise exceptions.LIMSUnavailableError(
-            "GET request to {} failed with status {}.".format(_request, response.status_code)
-        )
+        raise_bad_response("GET", response, _request, response.status_code)
+
     return json.loads(response.text)
 
 
@@ -65,8 +72,9 @@ def post(url, data, *args, timeout=None):
     logging.info(f'POST data: {pformat(json.dumps(data))}')
 
     if response.status_code != 200:
-        raise exceptions.LIMSUnavailableError(f"Post request to {_request} failed with status {response.status_code}.")
+        raise_bad_response("POST", response, _request, response.status_code)
 
+    return response.status_code
 
 def post_to_file(filepath, data, *args):
     timestamp = datetime.datetime.now().timestamp()
