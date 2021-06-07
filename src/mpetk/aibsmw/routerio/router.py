@@ -103,6 +103,7 @@ class Router(object):
         message.header.message_id = message_id
         self._router.send_multipart([b'router', message_id.encode(), message.SerializeToString()])
 
+## Should we get rid of this??
     def generate_traffic_report(self):
         return
         registered_clients = []
