@@ -1,0 +1,117 @@
+syntax = "proto2";
+
+message message_header {
+    required string process = 1;
+    required string host = 2;
+    required float timestamp = 3;
+    required string message_id = 4;
+}
+
+message registered_nodes {
+    required message_header header = 1;
+    repeated string nodes = 2;
+}
+
+message traffic_report {
+    required message_header header = 1;
+    repeated string registrations = 2;
+    repeated string publications = 3;
+}
+
+message generic_heartbeat {
+    required message_header header = 1;
+    required float start_time = 2;
+}
+
+message remote_device_heartbeat {
+    required message_header header = 1 ;
+    required string device_name = 2;
+    required string ip_address = 4;
+    required int32 port = 5;
+    required float start_time = 6;
+}
+
+message request_remote_devices
+{
+    required message_header header = 1;
+}
+
+message router_alive
+{
+    required message_header header = 1;
+    repeated string registered_messages = 2;
+}
+
+message remote_devices_list
+{
+    required message_header header = 1;
+    required string devices = 2;
+}
+
+message remote_service_request {
+    enum COMMAND_TYPES {
+        CMD_RUN = 0;
+        CMD_SET = 1;
+        CMD_GET = 2;
+        CMD_CALLABLE = 3;
+        CMD_PLATFORM_INFO = 4;
+    }
+    required message_header header = 1;
+    required COMMAND_TYPES command_type = 2;
+    required string target = 3;
+    optional string args = 4;
+    optional string kwargs = 5;
+}
+
+message remote_service_reply {
+    enum CALL_RESULT_TYPES {
+        RESULT_FAILED = 0;
+        RESULT_PROCESSED = 1;
+    }
+
+    required message_header header = 1;
+    required CALL_RESULT_TYPES call_result = 2;
+    required string reply = 3;
+}
+
+message python_info {
+    required string build_number = 1;
+    required string build_date = 2;
+    required string compiler = 3;
+    required string branch = 4;
+    required string implementation = 5;
+    required string revision = 6;
+    required string version = 7;
+    required string exec_prefix = 8;
+    required bool is_conda = 10;
+}
+
+message host_info {
+    required string machine = 1;
+    required string node = 2;
+    required string platform = 3;
+    required string processor = 4;
+    required string release = 5;
+    required string system = 6;
+    required string version = 7;
+    required string sys_platform = 8;
+    required string byteorder = 9;
+}
+
+message platform_info {
+    required message_header header = 1;
+    required python_info python = 2;
+    required host_info host = 3;
+    required float start_time = 4;
+}
+
+message register_for_message {
+    required message_header header = 1;
+    required string message_id = 2;
+}
+
+message deregister_for_message {
+    required message_header header = 1;
+    required string message_id = 2;
+}
+
