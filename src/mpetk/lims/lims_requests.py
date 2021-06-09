@@ -22,6 +22,7 @@ if not hasattr(logging, 'lims'):
     setattr(logging, 'lims', lims_logging_spoof)
 
 def raise_bad_response(post_type, response, request, status_code):
+    print("in bad response")
     err = exceptions.LIMSBadResponse(
             "{} request to {} failed with status {}.".format(post_type, request, status_code)
         )
