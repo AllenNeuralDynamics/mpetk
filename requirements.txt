@@ -1,7 +1,7 @@
 kazoo==2.8.0
 pyyaml==5.3.1
 requests==2.24.0
-psutil==5.7.2
+psutil==5.8.0
 protobuf==3.12.4
 graphviz==0.14.1
 pyzmq==22.0.3
