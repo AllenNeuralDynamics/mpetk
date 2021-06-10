@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.2.0.dev4 (2021-06-09)
+
+* moved up aibsmw directory
+* fixed bug in limstk to catch exceptions 
+* pulled out router into own repo
 ## 0.2.0.dev3 (2021-05-12)
 
 * Removed need for QT Framework
