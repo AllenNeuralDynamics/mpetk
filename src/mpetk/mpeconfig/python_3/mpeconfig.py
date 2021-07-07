@@ -200,7 +200,7 @@ def setup_logging(project_name: str, local_log_path: str, log_config: dict, send
     log_config["handlers"]["file_handler"]["filename"] = f"{logfile}.log"
     log_config["handlers"]["debug_file_handler"]["filename"] = f"{logfile}_error.log"
 
-    session_parts = [str(datetime.datetime.now()), getpass.getuser(), str(os.getpid())]
+    session_parts = [str(datetime.datetime.now()), platform.node(), str(os.getpid())]
 
     aibs_session = md5((''.join(session_parts)).encode("utf-8")).hexdigest()[:7]
 

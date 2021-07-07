@@ -1,5 +1,9 @@
 # Changelog
 
+## FR Branch (ben)
+* Added new functionality to handle file-creation-based event callbacks
+* Session hash for logging now includes datetime, hostname, and pid
+
 ## 0.2.0.dev4 (2021-06-09)
 
 * moved up aibsmw directory

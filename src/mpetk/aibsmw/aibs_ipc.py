@@ -1,3 +1,4 @@
+import atexit
 from pathlib import Path
 from typing import List, Union
 
@@ -31,6 +32,19 @@ class InstructFilePmeh(PatternMatchingEventHandler):
 
 
 def register_instruct_callback(callback: callable = None, directory: str = None, extra_patterns: List[str] = []):
+    """
+    Associates a callback to a file create event and passes back the contents of the file that triggered the event.
+    Note: File removed automatically once read.
+
+    -Callback Anatomy-
+    The callback should take two arguments:
+    ** Argument 1 (str): The absolute file path for the file which triggered this event.
+    ** Argument 2 (str): The contents of said file.  
+
+    :param callback: A callable with signature as described above (str, str)
+    :param directory: The directory to monitor
+    :extra_patterns: An optional list of additional patterns to search for. Defaults to '*.event'.
+    """
     try:
         Path(directory).mkdir(parents=True, exist_ok=True)
 
@@ -41,10 +55,12 @@ def register_instruct_callback(callback: callable = None, directory: str = None,
                 observer.stop()
             else:
                 observer = Observer()
+                atexit.register(atexit_handler)
 
             instruction_filter = InstructFilePmeh(instruct_cb=callback, patterns=["*.event"] + extra_patterns)
             observer.schedule(instruction_filter, directory)
             observer.start()
+
     except Exception as e:
         if type(e) is OSError:
             # directory invalid
@@ -52,3 +68,8 @@ def register_instruct_callback(callback: callable = None, directory: str = None,
         else:
             raise CallbackCreationException("Callback cannot be assigned", e)
         # print(f"type: {type(e)}, str: {e}")
+
+def atexit_handler():
+    global observer
+    if observer:
+        observer.stop()
