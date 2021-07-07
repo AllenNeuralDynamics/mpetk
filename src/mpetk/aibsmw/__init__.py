@@ -11,7 +11,7 @@ import yaml
 
 __author__ = """Ross Hytnen"""
 __email__ = 'rossh@alleninstitute.org'
-__version__ = '0.2.0.dev4'
+__version__ = '0.2.0.dev5'
 
 if sys.version_info.major == 2:
     class FileNotFoundError(Exception):
@@ -21,8 +21,9 @@ from .routerio.router import Router, ZMQHandler, IOHandler
 from . import aibsmw_messages_pb2 as messages
 from .routerio.ZRO import ZROHost, RemoteObjectService, ZROProxy, Heartbeat
 from .routerio import ZRO
+from .aibs_ipc import *
 
-__all__ = [Router, ZMQHandler, messages, Heartbeat, ZROProxy, RemoteObjectService, ZROHost, ZRO]
+__all__ = [Router, ZMQHandler, messages, Heartbeat, ZROProxy, RemoteObjectService, ZROHost, ZRO, register_instruct_callback, CallbackCreationException]
 
 
 def init_log(log_config_file=None, override_local=False):

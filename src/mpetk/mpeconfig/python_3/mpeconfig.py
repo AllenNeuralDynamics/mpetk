@@ -200,7 +200,9 @@ def setup_logging(project_name: str, local_log_path: str, log_config: dict, send
     log_config["handlers"]["file_handler"]["filename"] = f"{logfile}.log"
     log_config["handlers"]["debug_file_handler"]["filename"] = f"{logfile}_error.log"
 
-    aibs_session = md5(str(datetime.datetime.now()).encode()).hexdigest()[:7]
+    session_parts = [str(datetime.datetime.now()), platform.node(), str(os.getpid())]
+
+    aibs_session = md5((''.join(session_parts)).encode("utf-8")).hexdigest()[:7]
 
     def record_factory(*args, **kwargs):
         record = log_factory(*args, **kwargs)
