@@ -14,6 +14,7 @@ import os
 import platform
 import shutil
 from collections import namedtuple
+from enum import Enum, auto
 from hashlib import md5
 
 import pip._internal.utils.misc
@@ -32,6 +33,15 @@ default_logging_dict = yaml.load(open(f"{resource_path}/mpe_defaults_logging.yml
 default_config_dict = yaml.load(open(f"{resource_path}/mpe_defaults_configuration.yml", "r"), Loader=loader.Loader)
 
 aibs_session = ""
+
+
+class SerializationTypes(Enum):
+    YAML = auto(),
+    JSON = auto(),
+    XML = auto(),
+    PLAINTEXT = auto(),
+    PROTOBUF = auto(),
+    INI = auto()
 
 
 class WebHandler(logging.handlers.SocketHandler):
@@ -58,7 +68,8 @@ def source_configuration(
     fetch_project_config: bool = True,
     version: str = None,
     rig_id: str = None,
-    comp_id: str = None
+    comp_id: str = None,
+    serialization: str = "yaml"
 ):
     """
     Connects to the quorum and searches for the following paths:
@@ -82,7 +93,7 @@ def source_configuration(
 
     if use_local_config:
         return build_local_configuration(
-            project_name, fetch_logging_config, fetch_project_config, send_start_log, version
+            project_name, fetch_logging_config, fetch_project_config, send_start_log, version, serialization
         )
 
     with ConfigServer(hosts=hosts) as zk:
@@ -121,12 +132,14 @@ def source_configuration(
         ensure_path(local_config_path)
 
         if fetch_logging_config:
-            log_config = compile_remote_configuration(zk, project_name, "logging", rig_id = rig_id, comp_id = comp_id)
-            setup_logging(project_name, local_log_path, log_config, send_start_log, version=version, rig_id = rig_id, comp_id = comp_id)
+            log_config = compile_remote_configuration(zk, project_name, "logging", rig_id=rig_id, comp_id=comp_id)
+            setup_logging(project_name, local_log_path, log_config, send_start_log, version=version, rig_id=rig_id,
+                          comp_id=comp_id)
             cache_remote_config(log_config, local_log_path)
 
         if fetch_project_config:
-            project_config = compile_remote_configuration(zk, project_name, "configuration", rig_id = rig_id, comp_id = comp_id)
+            project_config = compile_remote_configuration(zk, project_name, "configuration", rig_id=rig_id,
+                                                          comp_id=comp_id, serialization=serialization)
             cache_remote_config(project_config, local_config_path)
             return project_config  # dict_to_namedtuple(project_config)
 
@@ -232,7 +245,8 @@ def setup_logging(project_name: str, local_log_path: str, log_config: dict, send
 
     if send_start_log:
         logging.log(
-            logging_level_map["START_STOP"], f"Action, Start, log_session, {aibs_session}, WinUserID, {getpass.getuser()}")
+            logging_level_map["START_STOP"],
+            f"Action, Start, log_session, {aibs_session}, WinUserID, {getpass.getuser()}")
 
         def send_stop_log():
             logging.log(
@@ -260,7 +274,8 @@ def get_platform_paths(config, project_name):
     return local_log_path, local_config_path
 
 
-def compile_remote_configuration(zk, project_name, config_type="configuration", rig_id=None, comp_id=None):
+def compile_remote_configuration(zk, project_name, config_type="configuration", rig_id=None, comp_id=None,
+                                 serialization='yaml'):
     """
     Look for various pieces of the configuration in the zookeeper tree
     :param zk: An active zookeeper connection
@@ -279,26 +294,35 @@ def compile_remote_configuration(zk, project_name, config_type="configuration", 
     rig_name = rig_id or os.environ.get("aibs_rig_id", "")
     comp_name = comp_id or os.environ.get("aibs_comp_id", "")
 
-    mpe_defaults = fetch_configuration(zk, f"/mpe_defaults/{config_type}", required=True)
+    mpe_defaults = fetch_configuration(zk, f"/mpe_defaults/{config_type}", required=True, serialization=serialization)
 
     if zk.exists(f"/projects/{project_name}/defaults/{config_type}"):
-        project_config = fetch_configuration(zk, f"/projects/{project_name}/defaults/{config_type}")
-        rig_config = fetch_configuration(zk, f"/rigs/{rig_name}/projects/{project_name}/{config_type}")
-        comp_config = fetch_configuration(zk, f"/rigs/{comp_name}/projects/{project_name}/{config_type}")
+        project_config = fetch_configuration(zk, f"/projects/{project_name}/defaults/{config_type}",
+                                             serialization=serialization)
+        rig_config = fetch_configuration(zk, f"/rigs/{rig_name}/projects/{project_name}/{config_type}",
+                                         serialization=serialization)
+        comp_config = fetch_configuration(zk, f"/rigs/{comp_name}/projects/{project_name}/{config_type}",
+                                          serialization=serialization)
         shared_rig_config = fetch_configuration(zk, f"/rigs/{rig_name}")
         shared_comp_config = fetch_configuration(zk, f"/rigs/{comp_name}")
 
     elif zk.exists(f"/hardware/{project_name}/defaults/{config_type}"):
-        project_config = fetch_configuration(zk, f"/hardware/{project_name}/defaults/{config_type}")
-        rig_config = fetch_configuration(zk, f"/rigs/{rig_name}/hardware/{project_name}/{config_type}")
-        comp_config = fetch_configuration(zk, f"/rigs/{comp_name}/hardware/{project_name}/{config_type}")
-        shared_rig_config = fetch_configuration(zk, f"/rigs/{rig_name}")
-        shared_comp_config = fetch_configuration(zk, f"/rigs/{comp_name}")
+        project_config = fetch_configuration(zk, f"/hardware/{project_name}/defaults/{config_type}",
+                                             serialization=serialization)
+        rig_config = fetch_configuration(zk, f"/rigs/{rig_name}/hardware/{project_name}/{config_type}",
+                                         serialization=serialization)
+        comp_config = fetch_configuration(zk, f"/rigs/{comp_name}/hardware/{project_name}/{config_type}",
+                                          serialization=serialization)
+        shared_rig_config = fetch_configuration(zk, f"/rigs/{rig_name}", serialization=serialization)
+        shared_comp_config = fetch_configuration(zk, f"/rigs/{comp_name}", serialization=serialization)
 
     else:
         if config_type != "logging":
             logging.warning(f"Found no configuration available for {project_name}")
         return mpe_defaults
+
+    if serialization == 'plain_text':
+        return project_config.decode()
 
     rtn_dict = deep_merge(copy.deepcopy(mpe_defaults), project_config)
     rtn_dict = deep_merge(copy.deepcopy(rtn_dict), rig_config)
@@ -310,7 +334,7 @@ def compile_remote_configuration(zk, project_name, config_type="configuration", 
     return rtn_dict
 
 
-def fetch_configuration(server, config_path, required=False):
+def fetch_configuration(server, config_path, required=False, serialization='yaml'):
     """
     Pull a configuration from a zk path and deserialize it.
     :param server: active zk connection
@@ -322,7 +346,9 @@ def fetch_configuration(server, config_path, required=False):
     """
     config = {}
     try:
-        config = yaml.load(server[config_path], Loader=loader.Loader)
+        config = server[config_path]
+        if serialization == 'yaml':
+            config = yaml.load(server[config_path], Loader=loader.Loader)
     except (AttributeError, ParserError) as err:
         if required:
             logging.error(f"{config_path} is not valid YAML: {err}")
