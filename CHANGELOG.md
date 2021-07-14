@@ -1,4 +1,5 @@
 # Changelog
+
 ## 0.2.1.dev0 (2021-07-14)
 * added initial support for serialization methods
 
