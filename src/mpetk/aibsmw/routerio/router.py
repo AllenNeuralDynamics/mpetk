@@ -103,9 +103,14 @@ class Router(object):
         message.header.message_id = message_id
         self._router.send_multipart([b'router', message_id.encode(), message.SerializeToString()])
 
+## Should we get rid of this??
     def generate_traffic_report(self):
-        # registered_clients = list(set(v for k, v in self.registration.items()))
-        # publishing_clients = list(set(header[0] for header in self.message_headers))
+        return
+        registered_clients = []
+        for k, v in self.registration.items():
+            registered_clients += v
+        registered_clients = list(set(registered_clients))
+        publishing_clients = list(set(header[0] for header in self.message_headers))
         dot = Digraph(comment=f'{socket.gethostname()} Traffic Report')
         for client in self.clients:
             dot.attr('node', width='3')
@@ -147,8 +152,6 @@ class Router(object):
                 t2 = datetime.now()
                 delta = t2 - time_since_last_report
                 if delta.seconds > 30:
-                    #self.log.info('Generating traffic report')
-                    self.generate_traffic_report()
                     time_since_last_report = t2
                 continue
             if packet[1] == b'':
