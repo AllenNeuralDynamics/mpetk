@@ -23,7 +23,7 @@ name = 'mpetk'
 <<<<<<< HEAD
 version = '0.2.1.dev0'
 =======
-version = '0.2.0.dev5'
+version = '0.3.0.dev0'
 >>>>>>> 25b3ae225c94580687c1999c3b3bf6a56f2fe0ef
 summary = 'configuration tools for mpe projects'
 description = __doc__

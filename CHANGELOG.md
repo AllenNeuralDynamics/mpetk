@@ -1,7 +1,7 @@
 <<<<<<< HEAD
 # Changelog
 
-## 0.2.1.dev0 (2021-07-14)
+## 0.3.0.dev0 (2021-07-14)
 * added initial support for serialization methods
 
 ## 0.2.0.dev3 (2021-05-12)
@@ -29,7 +29,7 @@
 ## 0.2.0.dev4 (2021-06-09)
 
 * moved up aibsmw directory
-* fixed bug in limstk to catch exceptions 
+* fixed bug in limstk to catch exceptions
 * pulled out router into own repo
 ## 0.2.0.dev3 (2021-05-12)
 
