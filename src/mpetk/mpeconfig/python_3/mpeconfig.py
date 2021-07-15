@@ -10,6 +10,7 @@ import inspect
 import logging
 import logging.config
 import logging.handlers
+from operator import le
 import os
 import platform
 import shutil
@@ -55,7 +56,18 @@ class WebHandler(logging.handlers.SocketHandler):
         super().__init__(host, port)
 
     def emit(self, record):
+
+        # import pdb; pdb.set_trace()
+        # from pprint import pprint
+        # pprint(dir(record))
+        # record.message = record.message if len(record.message) > 0 and record.message[-1] == "," else record.message + ","
+
+        # record.message = "hey cool,"
+        # print(record.message)
+        # super().emit(record)
+
         if hasattr(record, "weblog"):
+            print(f"record: {record}")
             super().emit(record)
 
 
@@ -236,7 +248,9 @@ def setup_logging(project_name: str, local_log_path: str, log_config: dict, send
     for level_name, level_no in logging_level_map.items():
 
         def level_func(message, level=level_no, *args, **kws):
+            # print(f"level: {level}")
             if logging.root.isEnabledFor(level):
+                # logging.root._log(level, "message", args, extra=kws.get("extra", {}))
                 logging.root._log(level, message, args, extra=kws.get("extra", {}))
 
         logging.addLevelName(level_no, level_name)
@@ -248,12 +262,12 @@ def setup_logging(project_name: str, local_log_path: str, log_config: dict, send
     if send_start_log:
         logging.log(
             logging_level_map["START_STOP"],
-            f"Action, Start, log_session, {aibs_session}, WinUserID, {getpass.getuser()}")
+            f"Action, Start, log_session, {aibs_session}, WinUserID, {getpass.getuser()},")
 
         def send_stop_log():
             logging.log(
                 logging_level_map["START_STOP"],
-                f"Action, Stop, log_session, {aibs_session}, WinUserID, {getpass.getuser()}")
+                f"Action, Stop, log_session, {aibs_session}, WinUserID, {getpass.getuser()},")
 
         atexit.register(send_stop_log)
 
