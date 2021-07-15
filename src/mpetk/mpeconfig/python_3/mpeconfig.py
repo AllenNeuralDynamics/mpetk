@@ -56,16 +56,6 @@ class WebHandler(logging.handlers.SocketHandler):
         super().__init__(host, port)
 
     def emit(self, record):
-
-        # import pdb; pdb.set_trace()
-        # from pprint import pprint
-        # pprint(dir(record))
-        # record.message = record.message if len(record.message) > 0 and record.message[-1] == "," else record.message + ","
-
-        # record.message = "hey cool,"
-        # print(record.message)
-        # super().emit(record)
-
         if hasattr(record, "weblog"):
             print(f"record: {record}")
             super().emit(record)
@@ -235,6 +225,7 @@ def setup_logging(project_name: str, local_log_path: str, log_config: dict, send
         record.comp_id = comp_id or os.getenv("aibs_comp_id", "undefined")
         record.version = version
         record.project = project_name
+        record.msg = record.msg if record.msg and record.msg[-1] == ',' else record.msg + ','
         return record
 
     logging.setLogRecordFactory(record_factory)
@@ -244,11 +235,11 @@ def setup_logging(project_name: str, local_log_path: str, log_config: dict, send
     port = log_config["handlers"]["socket_handler"]["port"]
     handler = WebHandler(host, int(port))
     handler.level = logging.INFO
-
+    handler.level = logging.WARNING
     for level_name, level_no in logging_level_map.items():
-
         def level_func(message, level=level_no, *args, **kws):
-            # print(f"level: {level}")
+            message='new message'
+            print(f"level: {level}")
             if logging.root.isEnabledFor(level):
                 # logging.root._log(level, "message", args, extra=kws.get("extra", {}))
                 logging.root._log(level, message, args, extra=kws.get("extra", {}))
