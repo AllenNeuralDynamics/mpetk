@@ -238,10 +238,7 @@ def setup_logging(project_name: str, local_log_path: str, log_config: dict, send
     handler.level = logging.WARNING
     for level_name, level_no in logging_level_map.items():
         def level_func(message, level=level_no, *args, **kws):
-            message='new message'
-            print(f"level: {level}")
             if logging.root.isEnabledFor(level):
-                # logging.root._log(level, "message", args, extra=kws.get("extra", {}))
                 logging.root._log(level, message, args, extra=kws.get("extra", {}))
 
         logging.addLevelName(level_no, level_name)
