@@ -1,6 +1,6 @@
 # Changelog
 
-## 0.3.0.dev2 (2021-07.22)
+## 0.3.0.dev2 (2021-07-22)
 * fixed info logging
 * removed errant print
 
