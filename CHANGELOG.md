@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.3.0.dev2 (2021-07.22)
+* fixed info logging
+* removed errant print
+
 ## 0.3.0.dev1 (2021-07-22)
 
 * added file-based ipc

@@ -235,7 +235,6 @@ def setup_logging(project_name: str, local_log_path: str, log_config: dict, send
     port = log_config["handlers"]["socket_handler"]["port"]
     handler = WebHandler(host, int(port))
     handler.level = logging.INFO
-    handler.level = logging.WARNING
     for level_name, level_no in logging_level_map.items():
         def level_func(message, level=level_no, *args, **kws):
             if logging.root.isEnabledFor(level):
