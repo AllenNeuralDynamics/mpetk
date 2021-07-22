@@ -57,7 +57,6 @@ class WebHandler(logging.handlers.SocketHandler):
 
     def emit(self, record):
         if hasattr(record, "weblog"):
-            print(f"record: {record}")
             super().emit(record)
 
 

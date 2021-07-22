@@ -1,7 +1,8 @@
 # Changelog
 
-## 0.3.0.dev1 (2021-07-15)
+## 0.3.0.dev1 (2021-07-22)
 
+* added file-based ipc
 * added comma
 
 ## 0.3.0.dev0 (2021-07-14)
