@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.3.1 (2021-07-26)
+
+* fixed pyzmq bug with pyinstaller by downgrading to 19.0.2 (still 3.9.5 compat)
+
 ## 0.3.0 (2021-07-23)
 * bumped to production
 
