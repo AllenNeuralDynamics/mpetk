@@ -44,19 +44,6 @@ def request(url, *args, timeout=None):
 
     return json.loads(response.text)
 
-
-def request_from_file(path, *args):
-    try:
-        filename = f"{path}\\{args[0]}\\{args[1]}.json"
-    except:
-        filename = f"{path}\\{args[0]}.json"
-    if os.path.exists(filename):
-        logging.info(f'loading data file: {filename}')
-        return json.load(open(filename, 'r'))
-    else:
-        raise FileNotFoundError(f'Could not find test data file: {filename}')
-
-
 def post(url, data, *args, timeout=None):
     if args:
         _request = url.format(*args).replace(";", "%3B")
@@ -78,39 +65,19 @@ def post(url, data, *args, timeout=None):
 
     return response.status_code
 
-def post_to_file(filepath, data, *args):
-    timestamp = datetime.datetime.now().timestamp()
-    os.makedirs(filepath, mode=777, exist_ok=True)
-    filename = f'{timestamp}.json'
-    logging.info(f'Writing post file to {filepath}/{filename}')
-    json.dump(data, open(f'{filepath}/{filename}', 'w'))
-    if args:
-        meta_file = f'{timestamp}.meta'
-        json.dump(args, open(f'{filepath}/{meta_file}', 'w'))
-
-
 def query_table(table_name, key, value, timeout=None):
     lims_url = _config["lims_url"]
     return request(f"{lims_url}/{table_name}.json/?{key}={value}", timeout=timeout)
 
 
-lims_data_path = os.getenv('LIMSTK_DATA_PATH')
-if lims_data_path:
-    lims_data_path = lims_data_path.strip()
-    logging.lims(f'USING LIMSTK_DATA_PATH: {lims_data_path}')
+if hasattr(_module, "training_mode"):
+    for name, url in _config["training_apis"].items():
+        setattr(_module, name, partial(request,url))
 for name, url in _config["apis"].items():
-    if not lims_data_path:
-        setattr(_module, name, partial(request, url))
-    else:
-        path = f'{lims_data_path}/{name}'
-        setattr(_module, name, partial(request_from_file, path))
+    setattr(_module, name, partial(request, url))
 
 for name, url in _config['post_apis'].items():
-    if not lims_data_path:
-        setattr(_module, f'post_{name}', partial(post, url))
-    else:
-        path = f'{lims_data_path}\\posts\\{name}'
-        setattr(_module, f'post_{name}', partial(post_to_file, path))
+    setattr(_module, f'post_{name}', partial(post, url))
 
 
 def mouse_is_active(mouse_id, timeout=None):
@@ -133,10 +100,10 @@ setattr(_module, 'mouse_is_active', mouse_is_active)
 
 
 def mouse_is_restricted(mouse_id):
-    if lims_data_path:
-        path = lims_data_path
-        mouse_details = request_from_file(path, 'donor_info_with_parent', mouse_id)
-        if mouse_details[0]['water_restricted']:
+    if hasattr(_module, "training_mode"):
+        url = _config["training_apis"]["donor_info_with_parent"]
+        response = requests.get(url.format(mouse_id))
+        if response.json()[0]["water_restricted"]:
             return True
         else:
             return False
@@ -154,7 +121,7 @@ def mouse_is_restricted(mouse_id):
         else:
             return False
 
-    # LIMS API will return True/ False/ Null.  Null should return False
+        # LIMS API will return True/ False/ Null.  Null should return False
 
 
 setattr(_module, 'mouse_is_restricted', mouse_is_restricted)
