@@ -69,6 +69,16 @@ def query_table(table_name, key, value, timeout=None):
     lims_url = _config["lims_url"]
     return request(f"{lims_url}/{table_name}.json/?{key}={value}", timeout=timeout)
 
+def begin_training_mode():
+    for name, url in _config["apis"].items():
+        delattr(_module, name)
+    for name, url in _config['post_apis'].items():
+        delattr(_module, f'post_{name}')
+    
+    for name, url in _config["training_apis"].items():
+        setattr(_module, name, partial(request,url))
+    for name, url in _config["training_apis"].items():
+        setattr(_module, f'post_{name}', partial(request,url))
 
 if hasattr(_module, "training_mode"):
     for name, url in _config["training_apis"].items():
