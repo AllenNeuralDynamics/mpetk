@@ -12,6 +12,8 @@ _module = __import__(__name__)
 
 _config = mpeconfig.source_configuration("limstk", fetch_logging_config=False, send_start_log=False)
 
+training_mode = False
+
 def lims_logging_spoof(log_message, extra=None):
     if extra:
         logging.info(log_message, extra=extra)
@@ -70,6 +72,7 @@ def query_table(table_name, key, value, timeout=None):
     return request(f"{lims_url}/{table_name}.json/?{key}={value}", timeout=timeout)
 
 def begin_training_mode():
+    training_mode = True
     for name, url in _config["apis"].items():
         delattr(_module, name)
     for name, url in _config['post_apis'].items():
