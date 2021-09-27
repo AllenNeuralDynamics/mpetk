@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.3.2 (2021-09-27)
+
+* Updated broken requirement for pyyaml
+* Removed python2 mpeconfig version as it is no longere supported
+
 ## 0.3.1 (2021-07-26)
 
 * fixed pyzmq bug with pyinstaller by downgrading to 19.0.2 (still 3.9.5 compat)

@@ -20,7 +20,7 @@ default_task = ['install_dependencies',
 
 # project meta
 name = 'mpetk'
-version = '0.3.1'
+version = '0.3.2'
 summary = 'configuration tools for mpe projects'
 description = __doc__
 authors = (Author('ross hytnen', 'rossh@alleninstitute.org'),
@@ -85,7 +85,3 @@ def initialize(project):
                          'mpetk/mpeconfig/python_3/resources/mpe_defaults_configuration.yml')
     project.install_file('lib/site-packages/mpetk/mpeconfig/python_3/resources',
                          'mpetk/mpeconfig/python_3/resources/mpe_defaults_logging.yml')
-    project.install_file('lib/site-packages/mpetk/mpeconfig/python_2/resources',
-                         'mpetk/mpeconfig/python_2/resources/mpe_defaults_configuration.yml')
-    project.install_file('lib/site-packages/mpetk/mpeconfig/python_2/resources',
-                         'mpetk/mpeconfig/python_2/resources/mpe_defaults_logging.yml')
