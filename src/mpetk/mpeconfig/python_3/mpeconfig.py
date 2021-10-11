@@ -62,7 +62,7 @@ class WebHandler(logging.handlers.SocketHandler):
 
 def source_configuration(
     project_name: str,
-    hosts: str = "aibspi.corp.alleninstitute.org:2181,aibspi.corp.alleninstitute.org:8443",
+    hosts: str = "aibspi.corp.alleninstitute.org:2181",
     use_local_config: bool = False,
     send_start_log: bool = True,
     fetch_logging_config: bool = True,
@@ -123,7 +123,9 @@ def source_configuration(
                     if filename in path:
                         version = dist.version
 
-        if zk.client_state == "CLOSED":
+        # if zk.client_state == "CLOSED":
+        print(zk.connected)
+        if not zk.connected:
             print("Looking for local configurations ...")
             return build_local_configuration(project_name, fetch_logging_config, fetch_project_config, send_start_log)
 

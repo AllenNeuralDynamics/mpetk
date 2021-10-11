@@ -1,9 +1,8 @@
 # Changelog
 
-## 0.3.3 (2021-10-11)
+## 0.3.4 (2021-10-11)
 
 * fixed lims dynamic functions bug
-* added remote port for ZK so configs can be pulled from home
 
 ## 0.3.2 (2021-09-27)
 
