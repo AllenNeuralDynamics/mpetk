@@ -123,8 +123,6 @@ def source_configuration(
                     if filename in path:
                         version = dist.version
 
-        # if zk.client_state == "CLOSED":
-        print(zk.connected)
         if not zk.connected:
             print("Looking for local configurations ...")
             return build_local_configuration(project_name, fetch_logging_config, fetch_project_config, send_start_log)

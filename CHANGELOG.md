@@ -1,6 +1,6 @@
 # Changelog
 
-## 0.3.4 (2021-10-11)
+## 0.3.5 (2021-10-13)
 
 * fixed lims dynamic functions bug
 
