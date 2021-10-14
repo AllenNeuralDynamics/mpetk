@@ -71,6 +71,27 @@ def query_table(table_name, key, value, timeout=None):
     lims_url = _config["lims_url"]
     return request(f"{lims_url}/{table_name}.json/?{key}={value}", timeout=timeout)
 
+def request_from_file(path, *args):
+    try:
+        filename = f"{path}\\{args[0]}\\{args[1]}.json"
+    except:
+        filename = f"{path}\\{args[0]}.json"
+    if os.path.exists(filename):
+        logging.info(f'loading data file: {filename}')
+        return json.load(open(filename, 'r'))
+    else:
+        raise FileNotFoundError(f'Could not find test data file: {filename}')
+        
+def post_to_file(filepath, data, *args):
+    timestamp = datetime.datetime.now().timestamp()
+    os.makedirs(filepath, mode=777, exist_ok=True)
+    filename = f'{timestamp}.json'
+    logging.info(f'Writing post file to {filepath}/{filename}')
+    json.dump(data, open(f'{filepath}/{filename}', 'w'))
+    if args:
+        meta_file = f'{timestamp}.meta'
+        json.dump(args, open(f'{filepath}/{meta_file}', 'w'))
+
 def begin_training_mode():
     for name, url in _config["apis"].items():
         delattr(_module, name)
@@ -82,12 +103,23 @@ def begin_training_mode():
     for name, url in _config["training_apis_post"].items():
         setattr(_module, f'post_{name}', partial(post,url))
 
+lims_data_path = os.getenv('LIMSTK_DATA_PATH')
+if lims_data_path:
+    lims_data_path = lims_data_path.strip()
+    logging.lims(f'USING LIMSTK_DATA_PATH: {lims_data_path}')
 for name, url in _config["apis"].items():
-    setattr(_module, name, partial(request, url))
+    if not lims_data_path:
+        setattr(_module, name, partial(request, url))
+    else:
+        path = f'{lims_data_path}/{name}'
+        setattr(_module, name, partial(request_from_file, path))
 
 for name, url in _config['post_apis'].items():
-    setattr(_module, f'post_{name}', partial(post, url))
-
+    if not lims_data_path:
+        setattr(_module, f'post_{name}', partial(post, url))
+    else:
+        path = f'{lims_data_path}\\posts\\{name}'
+        setattr(_module, f'post_{name}', partial(post_to_file, path))
 
 def mouse_is_active(mouse_id, timeout=None):
     session = requests.session()
