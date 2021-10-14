@@ -12,7 +12,6 @@ _module = __import__(__name__)
 
 _config = mpeconfig.source_configuration("limstk", fetch_logging_config=False, send_start_log=False)
 
-training_mode = False
 
 def lims_logging_spoof(log_message, extra=None):
     if extra:
@@ -67,12 +66,12 @@ def post(url, data, *args, timeout=None):
 
     return response.status_code
 
+
 def query_table(table_name, key, value, timeout=None):
     lims_url = _config["lims_url"]
     return request(f"{lims_url}/{table_name}.json/?{key}={value}", timeout=timeout)
 
 def begin_training_mode():
-    training_mode = True
     for name, url in _config["apis"].items():
         delattr(_module, name)
     for name, url in _config['post_apis'].items():
@@ -80,12 +79,9 @@ def begin_training_mode():
     
     for name, url in _config["training_apis"].items():
         setattr(_module, name, partial(request,url))
-    for name, url in _config["training_apis"].items():
-        setattr(_module, f'post_{name}', partial(request,url))
+    for name, url in _config["training_apis_post"].items():
+        setattr(_module, f'post_{name}', partial(post,url))
 
-if hasattr(_module, "training_mode"):
-    for name, url in _config["training_apis"].items():
-        setattr(_module, name, partial(request,url))
 for name, url in _config["apis"].items():
     setattr(_module, name, partial(request, url))
 
@@ -113,10 +109,10 @@ setattr(_module, 'mouse_is_active', mouse_is_active)
 
 
 def mouse_is_restricted(mouse_id):
-    if hasattr(_module, "training_mode"):
-        url = _config["training_apis"]["donor_info_with_parent"]
-        response = requests.get(url.format(mouse_id))
-        if response.json()[0]["water_restricted"]:
+    if hasattr(_module, "training"):
+        url = "http://127.0.0.1:5000/donor_info_with_parent/"
+        response = requests.get(url + str(mouse_id))
+        if response.json()["water_restricted"]:
             return True
         else:
             return False
