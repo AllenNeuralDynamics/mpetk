@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.4.0 (2021-10-14)
+
+* training API calls added for test database queries
+* production API calls overwritten when in training mode
+
 ## 0.3.5 (2021-10-13)
 
 * fixed lims dynamic functions bug
