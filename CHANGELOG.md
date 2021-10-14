@@ -1,6 +1,6 @@
 # Changelog
 
-## 0.4.0 (2021-10-14)
+## 0.4.0.dev0 (2021-10-14)
 
 * training API calls added for test database queries
 * production API calls overwritten when in training mode
