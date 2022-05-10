@@ -8,7 +8,7 @@ build:
   script:
     - python -m pip install pyinstaller
     - python -m pip install pybuilder
-    - pyb_ -X
+    - pyb -X
 
 
 include: 'http://aibspi.corp.alleninstitute.org/infrastructure/mpeci/raw/master/resources/gitlab-ci-template.yml'
