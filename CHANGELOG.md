@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.3.6 (2022-05-10)
+
+* control-c will call exit()
+
 ## 0.3.5 (2021-10-13)
 
 * fixed lims dynamic functions bug

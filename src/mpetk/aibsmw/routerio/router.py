@@ -333,6 +333,8 @@ class ZMQHandler(IOHandler):
         from pprint import pprint
         try:
             client, message_id, message = self._router.recv_multipart()
+        except KeyboardInterrupt:
+            exit()
         except Exception:
             raise zmq.error.Again
 
