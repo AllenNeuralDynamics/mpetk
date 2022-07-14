@@ -1,4 +1,6 @@
 # Changelog
+## 0.4.0 (2022-07-14)
+* added mtrain toolkit
 
 ## 0.3.6 (2022-05-10)
 
