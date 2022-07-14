@@ -209,7 +209,9 @@ def setup_logging(project_name: str, local_log_path: str, log_config: dict, send
     :param rig_id: Rig ID Override
     :param comp_id: Comp ID Override
     """
-    logging_level_map = {"START_STOP": logging.WARNING + 5, "ADMIN": logging.WARNING + 6, "LIMS": logging.WARNING + 7}
+    logging_level_map = {"START_STOP": logging.WARNING + 5, "ADMIN": logging.WARNING + 6, "LIMS": logging.WARNING + 7,
+                         "MTRAIN": logging.WARNING+8 }
+
     logfile = f"{os.path.dirname(local_log_path)}/{project_name}"
     log_config["handlers"]["file_handler"]["filename"] = f"{logfile}.log"
     log_config["handlers"]["debug_file_handler"]["filename"] = f"{logfile}_error.log"
