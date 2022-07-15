@@ -2,7 +2,7 @@
 
 __author__ = """ben sutton"""
 __email__ = "ben.sutton@alleninstitute.org"
-__version__ = '0.4.0'
+__version__ = '0.4.1.dev0'
 
 from .config_server import ConfigServer  # noqa
 from .mpeconfig import fetch_configuration

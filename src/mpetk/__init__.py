@@ -5,4 +5,4 @@ from . import piddl
 from . import zro
 from . import aibsmw
 
-__version__ = '0.4.0'
+__version__ = '0.4.1.dev0'
