@@ -104,24 +104,6 @@ def source_configuration(
 
         if not version:
             version = "unknown"
-            current_frame = inspect.currentframe()
-            module_path = inspect.getouterframes(current_frame, 2)[1][1]  # this yields a file path
-            for dist in pip._internal.utils.misc.get_installed_distributions():
-                if dist.has_metadata("RECORD"):
-                    lines = dist.get_metadata_lines("RECORD")
-                    paths = [l.split(",")[0] for l in lines]
-                elif dist.has_metadata("installed-files.txt"):
-                    paths = dist.get_metadata_lines("installed-files.txt")
-                else:
-                    paths = []
-
-                # This may need revision.  RECORD provides paths rooted at lib/site-packages so this could potentially
-                # match the wrong file.  Need to ensure the root installation and the environment are both accounted for
-                # correctly.
-                filename = os.path.basename(module_path)
-                for path in paths:
-                    if filename in path:
-                        version = dist.version
 
         if not zk.connected:
             print("Looking for local configurations ...")

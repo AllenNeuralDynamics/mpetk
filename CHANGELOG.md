@@ -1,4 +1,7 @@
 # Changelog
+## 0.4.1 (2022-07-15)
+* removed auto-detection of version
+
 ## 0.4.0 (2022-07-14)
 * added mtrain toolkit
 
