@@ -81,7 +81,7 @@ def initialize(project):
 
     for d in ['mptk/aibsmw', 'mptk/lims', 'mpetk/mpeconfig', 'mpetk/piddl', 'mpetk/zro']:
         add_files_to_project(project, d)
-    project.install_file('lib/site-packages/mpetk/mpeconfig/python_3/resources',
+    project.include_file('lib/site-packages/mpetk/mpeconfig/python_3/resources',
                          'mpetk/mpeconfig/python_3/resources/mpe_defaults_configuration.yml')
-    project.install_file('lib/site-packages/mpetk/mpeconfig/python_3/resources',
+    project.include_file('lib/site-packages/mpetk/mpeconfig/python_3/resources',
                          'mpetk/mpeconfig/python_3/resources/mpe_defaults_logging.yml')
