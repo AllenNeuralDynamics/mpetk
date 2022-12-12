@@ -20,7 +20,7 @@ default_task = ['install_dependencies',
 
 # project meta
 name = 'mpetk'
-version = '0.4.1'
+version = '0.4.2'
 summary = 'configuration tools for mpe projects'
 description = __doc__
 authors = (Author('ross hytnen', 'rossh@alleninstitute.org'),
