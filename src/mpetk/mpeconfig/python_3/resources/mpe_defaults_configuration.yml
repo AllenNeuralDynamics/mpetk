@@ -4,9 +4,9 @@ linux_install_paths:
     local_log_config: logs
     python: /opt/mcpython3
 services:
-    log_server: aibspi.corp.alleninstitute.org:9000
-    python_index: http://aibspi.corp.alleninstitute.org:3141/aibs/dev
-    zookeeper: aibspi.corp.alleninstitute.org:2181
+    log_server: eng-logtools.corp.alleninstitute.org:9000
+    python_index: http://eng-logtools.corp.alleninstitute.org:3141/aibs/dev
+    zookeeper: eng-logtools.corp.alleninstitute.org:2181
 windows_install_paths:
     install: /ProgramData/AIBS_MPE
     local_config: config

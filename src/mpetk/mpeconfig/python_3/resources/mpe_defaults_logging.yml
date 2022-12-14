@@ -23,15 +23,7 @@ handlers:
         formatter: detailed
         level: ERROR
         maxBytes: 10485760
-    email_handler:
-        class: logging.handlers.SMTPHandler
-        formatter: detailed
-        fromaddr: rigs@alleninstitute.org
-        level: INFO
-        mailhost: aicas-1.corp.alleninstitute.org
-        subject: problem
-        toaddrs:
-            - rossh@alleninstitute.org
+
     file_handler:
         backupCount: 20
         class: logging.handlers.RotatingFileHandler
@@ -43,13 +35,13 @@ handlers:
     info_socket_handler:
         class: logging.handlers.SocketHandler
         formatter: log_server
-        host: aibspi.corp.alleninstitute.org
+        host: eng-logtools.corp.alleninstitute.org
         level: INFO
         port: 9000
     socket_handler:
         class: logging.handlers.SocketHandler
         formatter: log_server
-        host: aibspi.corp.alleninstitute.org
+        host: eng-logtools.corp.alleninstitute.org
         level: WARNING
         port: 9000
 loggers:
@@ -60,12 +52,12 @@ loggers:
             - info_socket_handler
         level: INFO
         propagate: false
-root:
-    handlers:
-        - console_handler
-        - file_handler
-        - debug_file_handler
-        - socket_handler
-    level: INFO
-    propagate: false
+    root:
+        handlers:
+            - console_handler
+            - file_handler
+            - debug_file_handler
+            - socket_handler
+        level: INFO
+        propagate: false
 version: 1

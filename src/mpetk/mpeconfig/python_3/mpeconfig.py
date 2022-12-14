@@ -6,11 +6,9 @@ import atexit
 import copy
 import datetime
 import getpass
-import inspect
 import logging
 import logging.config
 import logging.handlers
-from operator import le
 import os
 import platform
 import shutil
@@ -18,11 +16,9 @@ from collections import namedtuple
 from enum import Enum, auto
 from hashlib import md5
 
-import pip._internal.utils.misc
 import yaml
-from yaml import representer
-from yaml.parser import ParserError
 from yaml import loader
+from yaml.parser import ParserError
 
 from .config_server import ConfigServer
 
@@ -30,8 +26,89 @@ from .config_server import ConfigServer
 
 log_factory = logging.getLogRecordFactory()
 resource_path = f"{os.path.dirname(__file__)}/resources"
-default_logging_dict = yaml.load(open(f"{resource_path}/mpe_defaults_logging.yml", "r"), Loader=loader.Loader)
-default_config_dict = yaml.load(open(f"{resource_path}/mpe_defaults_configuration.yml", "r"), Loader=loader.Loader)
+
+default_logging_dict = """
+disable_existing_loggers: true
+formatters:
+    detailed:
+        datefmt: '%m/%d/%Y %I:%M:%S %p'
+        format: '%(asctime)s, %(levelname)s, %(module)s::%(lineno)s, %(message)s'
+    log_server:
+        datefmt: '%Y-%m-%d %H:%M:%S'
+        format: '%(asctime)s\n%(name)s\n%(levelname)s\n%(funcName)s (%(filename)s:%(lineno)d)\n%(message)s'
+    simple:
+        datefmt: '%m/%d/%Y %I:%M:%S %p'
+        format: '%(asctime)s, %(message)s'
+handlers:
+    console_handler:
+        class: logging.StreamHandler
+        formatter: simple
+        level: INFO
+        stream: ext://sys.stdout
+    debug_file_handler:
+        backupCount: 20
+        class: logging.handlers.RotatingFileHandler
+        encoding: utf8
+        filename: debug.log
+        formatter: detailed
+        level: ERROR
+        maxBytes: 10485760
+
+    file_handler:
+        backupCount: 20
+        class: logging.handlers.RotatingFileHandler
+        encoding: utf8
+        filename: log.log
+        formatter: simple
+        level: INFO
+        maxBytes: 10485760
+    info_socket_handler:
+        class: logging.handlers.SocketHandler
+        formatter: log_server
+        host: eng-logtools.corp.alleninstitute.org
+        level: INFO
+        port: 9000
+    socket_handler:
+        class: logging.handlers.SocketHandler
+        formatter: log_server
+        host: eng-logtools.corp.alleninstitute.org
+        level: WARNING
+        port: 9000
+loggers:
+    web_logger:
+        handlers:
+            - console_handler
+            - debug_file_handler
+            - info_socket_handler
+        level: INFO
+        propagate: false
+    root:
+        handlers:
+            - console_handler
+            - file_handler
+            - debug_file_handler
+            - socket_handler
+        level: INFO
+        propagate: false
+version: 1
+"""
+
+default_config_dict = """
+linux_install_paths:
+    install: ~/.config/AIBS_MPE
+    local_config: config
+    local_log_config: logs
+    python: /opt/mcpython3
+services:
+    log_server: eng-logtools.corp.alleninstitute.org:9000
+    python_index: http://eng-logtools.corp.alleninstitute.org:3141/aibs/dev
+    zookeeper: eng-logtools.corp.alleninstitute.org:2181
+windows_install_paths:
+    install: /ProgramData/AIBS_MPE
+    local_config: config
+    local_log_config: logs
+    python: /mcpython3
+"""
 
 aibs_session = ""
 
@@ -192,7 +269,7 @@ def setup_logging(project_name: str, local_log_path: str, log_config: dict, send
     :param comp_id: Comp ID Override
     """
     logging_level_map = {"START_STOP": logging.WARNING + 5, "ADMIN": logging.WARNING + 6, "LIMS": logging.WARNING + 7,
-                         "MTRAIN": logging.WARNING+8 }
+                         "MTRAIN": logging.WARNING + 8}
 
     logfile = f"{os.path.dirname(local_log_path)}/{project_name}"
     log_config["handlers"]["file_handler"]["filename"] = f"{logfile}.log"

@@ -1,4 +1,7 @@
 # Changelog
+## 0.4.3 (2022-12-12)
+* changed mpeconfig to host the yml files internally instead of as external files
+
 ## 0.4.2 (2022-12-12)
 * Changed build.py to "include_file" instead of "install_file" on no code files.  Important because the manifest that is generated has breaking syntax on "install_file" for linux.
 
