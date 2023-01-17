@@ -223,6 +223,7 @@ class Session(object):
 
             manifest_id = os.path.basename(manifest_filename).replace("_lims", "").replace("_manifest.yml", "")
             logging.info(f"Action, Wrote Manifest, ManifestID, {manifest_id}", extra={"weblog": True})
+
         except Exception as error:
             logging.error("Error writing manifest:".format(error))
             raise

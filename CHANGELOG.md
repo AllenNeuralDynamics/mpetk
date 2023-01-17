@@ -1,4 +1,7 @@
 # Changelog
+## 0.4.4.dev0 (2023-01-17)
+* session.Session.write_manifest will now log that it wrote a manifest.
+
 ## 0.4.3 (2022-12-12)
 * changed mpeconfig to host the yml files internally instead of as external files
 
