@@ -1,0 +1,4 @@
+include mpetk\mpeconfig\python_3\resources\mpe_defaults_configuration.yml
+include mpetk\mpeconfig\python_3\resources\mpe_defaults_logging.yml
+include lib\site-packages\mpetk\mpeconfig\python_3\resources\mpetk\mpeconfig\python_3\resources\mpe_defaults_configuration.yml
+include lib\site-packages\mpetk\mpeconfig\python_3\resources\mpetk\mpeconfig\python_3\resources\mpe_defaults_logging.yml

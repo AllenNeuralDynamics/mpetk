@@ -6,8 +6,10 @@ variables:
 
 build:
   script:
-    - python -m pip install pybuilder==0.13.6
-    - pyb -X
+    - pip install -r requirements.txt
+    - pip install -r requirements_dev.txt
+    - python.exe  setup.py -v clean --all sdist
+    - python.exe  setup.py -v clean --all bdist_wheel
 
 
 include: 'http://aibspi.corp.alleninstitute.org/infrastructure/mpeci/raw/master/resources/gitlab-ci-template.yml'
