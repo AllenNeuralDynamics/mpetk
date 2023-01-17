@@ -221,6 +221,8 @@ class Session(object):
             with open(self.manifest_filename, "w") as f:
                 f.write(str(yaml.dump(manifest_yml, default_flow_style=False)))
 
+            manifest_id = os.path.basename(manifest_filename).replace("_lims", "").replace("_manifest.yml", "")
+            logging.info(f"Action, Wrote Manifest, ManifestID, {manifest_id}", extra={"weblog": True})
         except Exception as error:
             logging.error("Error writing manifest:".format(error))
             raise
