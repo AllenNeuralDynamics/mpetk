@@ -11,7 +11,7 @@ import yaml
 
 __author__ = """Ross Hytnen"""
 __email__ = 'rossh@alleninstitute.org'
-__version__ = '0.4.4.dev0'
+__version__ = '0.4.4.dev1'
 
 if sys.version_info.major == 2:
     class FileNotFoundError(Exception):
