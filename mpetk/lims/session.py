@@ -7,12 +7,12 @@ import platform
 import re
 import subprocess
 
-from .. import mpeconfig
 import requests
 import yaml
 import zmq
 
 from . import exceptions
+from .. import mpeconfig
 
 
 def move_file(source, destination, remove_source=False):
@@ -65,7 +65,8 @@ class Session(object):
         :param kwargs: a list of arguments to be passed into the trigger file for this session
         """
         self.config = mpeconfig.source_configuration("limstk", send_start_log=False, fetch_logging_config=False)
-        self.project_config = mpeconfig.source_configuration(project_name, send_start_log=False, fetch_logging_config=False)
+        self.project_config = mpeconfig.source_configuration(project_name, send_start_log=False,
+                                                             fetch_logging_config=False)
         self.config = {**self.config, **self.project_config}
         self.session_type = session_type
         self.session = self.config[session_type]
@@ -76,6 +77,7 @@ class Session(object):
         self.manifest = []
         self.manifest_filename = None
         self.log_comment = None
+        self.overwrite_destination = False
 
     def build_trigger_file(self):
         """
@@ -202,6 +204,7 @@ class Session(object):
             "location": self.path_data["location"],
             "root_path": self.config["default_paths"]["root"],
             "trigger_data": self.trigger_data,
+            "overwrite_destination": self.overwrite_destination,
             "files": [],
         }
         if self.log_comment:
@@ -228,7 +231,7 @@ class Session(object):
             logging.error("Error writing manifest:".format(error))
             raise
 
-    def add_to_manifest(self, filename, dst_filename="", remove_source = True):
+    def add_to_manifest(self, filename, dst_filename="", remove_source=True):
         """
         Adds a filename to the session manifest if the filename does not exist
         :param filename: a full path/filename string
