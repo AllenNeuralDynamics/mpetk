@@ -1,4 +1,8 @@
 # Changelog
+
+## 0.4.4.dev1 (2023-01-18)
+* src moved to mpetk for setup.py
+
 ## 0.4.4.dev0 (2023-01-17)
 * session.Session.write_manifest will now log that it wrote a manifest.
 

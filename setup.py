@@ -4,6 +4,7 @@
 from setuptools import setup
 from setuptools.command.install import install as _install
 
+
 class install(_install):
     def pre_install_script(self):
         pass
@@ -18,53 +19,57 @@ class install(_install):
 
         self.post_install_script()
 
+
 if __name__ == '__main__':
     setup(
-        name = 'mpetk',
-        version = '0.4.4.dev0',
-        description = 'configuration tools for mpe projects',
-        long_description = 'configuration tools for mpe projects',
-        long_description_content_type = None,
-        classifiers = [
+        name='mpetk',
+        version='0.4.4.dev1',
+        description='configuration tools for mpe projects',
+        long_description='configuration tools for mpe projects',
+        long_description_content_type=None,
+        classifiers=[
             'Development Status :: 3 - Alpha',
             'Programming Language :: Python'
         ],
-        keywords = '',
+        keywords='',
 
-        author = 'ross hytnen, ben sutton',
-        author_email = 'rossh@alleninstitute.org, ben.sutton@alleninstitute.org',
-        maintainer = '',
-        maintainer_email = '',
+        author='ross hytnen, ben sutton',
+        author_email='rossh@alleninstitute.org, ben.sutton@alleninstitute.org',
+        maintainer='',
+        maintainer_email='',
 
-        license = '',
+        license='',
 
-        url = 'http://stash.corp.alleninstitute.org/scm/~rossh/mpeconfig',
-        project_urls = {},
+        url='http://stash.corp.alleninstitute.org/scm/~rossh/mpeconfig',
+        project_urls={},
 
-        scripts = [],
-        packages = [
-            'src.mpetk',
-            'src.mpetk.aibsmw',
-            'src.mpetk.aibsmw.aibsmw',
-            'src.mpetk.aibsmw.routerio',
-            'src.mpetk.lims',
-            'src.mpetk.mpeconfig',
-            'src.mpetk.mpeconfig.python_3',
-            'src.mpetk.mtrain',
-            'src.mpetk.piddl',
-            'src.mpetk.zro'
+        scripts=[],
+        packages=[
+            'mpetk',
+            'mpetk.aibsmw',
+            'mpetk.aibsmw.aibsmw',
+            'mpetk.aibsmw.routerio',
+            'mpetk.lims',
+            'mpetk.mpeconfig',
+            'mpetk.mpeconfig.python_3',
+            'mpetk.mtrain',
+            'mpetk.piddl',
+            'mpetk.zro'
         ],
-        namespace_packages = [],
-        py_modules = [],
-        entry_points = {
+        namespace_packages=[],
+        py_modules=[],
+        entry_points={
             'console_scripts': ['zk=zk:main']
         },
-        data_files = [],
-        package_data = {
-            'lib/site-packages/mpetk/mpeconfig/python_3/resources': ['src/mpetk/mpeconfig/python_3/resources/mpe_defaults_configuration.yml', 'src/mpetk/mpeconfig/python_3/resources/mpe_defaults_logging.yml'],
-            'mpetk/mpeconfig': ['src/python_3/resources/mpe_defaults_configuration.yml', 'src/python_3/resources/mpe_defaults_logging.yml']
+        data_files=[],
+        package_data={
+            'lib/site-packages/mpetk/mpeconfig/python_3/resources': [
+                'mpetk/mpeconfig/python_3/resources/mpe_defaults_configuration.yml',
+                'mpetk/mpeconfig/python_3/resources/mpe_defaults_logging.yml'],
+            'mpetk/mpeconfig': ['python_3/resources/mpe_defaults_configuration.yml',
+                                'python_3/resources/mpe_defaults_logging.yml']
         },
-        install_requires = [
+        install_requires=[
             'importlib_metadata==4.6.3',
             'kazoo==2.8.0',
             'pyyaml==5.3',
@@ -77,9 +82,9 @@ if __name__ == '__main__':
             'watchdog==2.0.2',
             'zmq==0.0.0'
         ],
-        dependency_links = [],
-        zip_safe = True,
-        cmdclass = {'install': install},
-        python_requires = '',
-        obsoletes = [],
+        dependency_links=[],
+        zip_safe=True,
+        cmdclass={'install': install},
+        python_requires='',
+        obsoletes=[],
     )
