@@ -188,8 +188,15 @@ def source_configuration(
 
         mpe_defaults = fetch_configuration(zk, f"/mpe_defaults/configuration", required=True)
         local_log_path, local_config_path = get_platform_paths(mpe_defaults, project_name)
-        ensure_path(local_log_path)
-        ensure_path(local_config_path)
+        #ensure_path(local_log_path)
+        #ensure_path(local_config_path)
+
+        if fetch_project_config:
+            project_config = compile_remote_configuration(zk, project_name, "configuration", rig_id=rig_id,
+                                                          comp_id=comp_id, serialization=serialization)
+            local_log_path, local_config_path = get_platform_paths(project_config, project_name)
+            cache_remote_config(project_config, local_config_path)
+            return project_config  # dict_to_namedtuple(project_config)
 
         if fetch_logging_config:
             log_config = compile_remote_configuration(zk, project_name, "logging", rig_id=rig_id, comp_id=comp_id)
@@ -197,11 +204,7 @@ def source_configuration(
                           comp_id=comp_id)
             cache_remote_config(log_config, local_log_path)
 
-        if fetch_project_config:
-            project_config = compile_remote_configuration(zk, project_name, "configuration", rig_id=rig_id,
-                                                          comp_id=comp_id, serialization=serialization)
-            cache_remote_config(project_config, local_config_path)
-            return project_config  # dict_to_namedtuple(project_config)
+
 
 
 def ensure_path(path: str):
@@ -439,6 +442,7 @@ def cache_remote_config(configuration, config_path):
     :param config_path: fully qualified path to save configuration.
     :return:
     """
+    config_path = os.path.expandvars(config_path)
     os.makedirs(os.path.dirname(config_path), exist_ok=True)
     if os.path.isfile(config_path):
         config = yaml.load(open(config_path), Loader=loader.Loader)
