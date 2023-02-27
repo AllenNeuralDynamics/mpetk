@@ -3,6 +3,7 @@ import datetime
 import json
 import logging
 import os
+import pathlib
 import platform
 import re
 import subprocess
@@ -56,7 +57,7 @@ def move_file(source, destination, remove_source=False):
 
 
 class Session(object):
-    def __init__(self, session_type, project_name, **kwargs):
+    def __init__(self, session_type, project_name, trigger_dir = "", **kwargs):
         """
         Creates a session object for interacting with LIMS
         :param session_type: a session type as defined in the limstk_Config file.  Example: 'ophys' or 'multipatch'
@@ -72,12 +73,20 @@ class Session(object):
         self.session = self.config[session_type]
         self.lims_variables = kwargs
         self.trigger_data = {}
-        self.path_data = {}
+        self.trigger_dir = trigger_dir
+        if self.trigger_dir:
+            self.path_data = {
+                "location": str(pathlib.PurePath(self.trigger_dir).parent),
+                "trigger_dir": self.trigger_dir
+            }
+        else:
+            self.path_data = {}
         self.build_trigger_file()
         self.manifest = []
         self.manifest_filename = None
         self.log_comment = None
         self.overwrite_destination = False
+        
 
     def build_trigger_file(self):
         """
@@ -194,9 +203,10 @@ class Session(object):
         if not trigger_filename:
             trigger_filename = datetime.datetime.now().strftime("%y%m%d%H%M%S")
 
-        extension = self.session.get("file_ext", 'tr2')
-        if not trigger_filename.endswith(extension):
-            trigger_filename = f"{trigger_filename}.{extension}"
+        if not "." in trigger_filename:
+            extension = self.session.get("file_ext", 'tr2')
+            if not trigger_filename.endswith(extension):
+                trigger_filename = f"{trigger_filename}.{extension}"
 
         manifest_yml = {
             "trigger_file": trigger_filename,
