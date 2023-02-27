@@ -188,23 +188,25 @@ def source_configuration(
 
         mpe_defaults = fetch_configuration(zk, f"/mpe_defaults/configuration", required=True)
         local_log_path, local_config_path = get_platform_paths(mpe_defaults, project_name)
-        #ensure_path(local_log_path)
-        #ensure_path(local_config_path)
+        project_config = None
+
 
         if fetch_project_config:
+            ensure_path(local_config_path)
             project_config = compile_remote_configuration(zk, project_name, "configuration", rig_id=rig_id,
                                                           comp_id=comp_id, serialization=serialization)
             local_log_path, local_config_path = get_platform_paths(project_config, project_name)
             cache_remote_config(project_config, local_config_path)
-            return project_config  # dict_to_namedtuple(project_config)
 
         if fetch_logging_config:
+            ensure_path(os.path.expandvars(local_log_path))
             log_config = compile_remote_configuration(zk, project_name, "logging", rig_id=rig_id, comp_id=comp_id)
-            setup_logging(project_name, local_log_path, log_config, send_start_log, version=version, rig_id=rig_id,
+            setup_logging(project_name, os.path.expandvars(local_log_path), log_config, send_start_log, version=version, rig_id=rig_id,
                           comp_id=comp_id)
             cache_remote_config(log_config, local_log_path)
 
 
+        return project_config
 
 
 def ensure_path(path: str):
@@ -293,6 +295,7 @@ def setup_logging(project_name: str, local_log_path: str, log_config: dict, send
         return record
 
     logging.setLogRecordFactory(record_factory)
+
     logging.config.dictConfig(log_config)
 
     host = log_config["handlers"]["socket_handler"]["host"]
