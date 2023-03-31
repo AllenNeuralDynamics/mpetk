@@ -236,8 +236,8 @@ def build_local_configuration(
     :param version: Module version to add to log_record
     :return:
     """
-    default_config = yaml.load(default_config_dict, Loader=loader.loader)
-    default_logging = yaml.load(default_logging_dict, Loader=loader.loader)
+    default_config = yaml.load(default_config_dict, Loader=loader.Loader)
+    default_logging = yaml.load(default_logging_dict, Loader=loader.Loader)
     local_log_path, local_config_path = get_platform_paths(default_config, project_name)
 
     # setup logging configuration
