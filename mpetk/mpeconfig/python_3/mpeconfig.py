@@ -236,7 +236,9 @@ def build_local_configuration(
     :param version: Module version to add to log_record
     :return:
     """
-    local_log_path, local_config_path = get_platform_paths(default_config_dict, project_name)
+    default_config = yaml.load(default_config_dict, Loader=loader.loader)
+    default_logging = yaml.load(default_logging_dict, Loader=loader.loader)
+    local_log_path, local_config_path = get_platform_paths(default_config, project_name)
 
     # setup logging configuration
     if fetch_logging_config:
@@ -244,7 +246,7 @@ def build_local_configuration(
             log_config = yaml.load(open(local_log_path, "r"), Loader=loader.Loader)
         else:
             print("Didn't find a local logging configuration:  Using the default MPE logging.")
-            log_config = default_logging_dict
+            log_config = default_logging
             cache_remote_config(log_config, local_log_path)
         setup_logging(project_name, local_log_path, log_config, send_start_log, version)
 
@@ -255,7 +257,7 @@ def build_local_configuration(
             project_config = deep_merge(copy.deepcopy(default_config_dict), project_config)
         else:
             logging.warning(f"Could not find a local project configuration: {local_config_path}.")
-            project_config = default_config_dict
+            project_config = default_config
 
         return project_config
 
