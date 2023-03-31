@@ -254,7 +254,7 @@ def build_local_configuration(
     if fetch_project_config:
         if os.path.isfile(local_config_path):
             project_config = yaml.load(open(local_config_path, "r"), Loader=loader.Loader)
-            project_config = deep_merge(copy.deepcopy(default_config_dict), project_config)
+            project_config = deep_merge(copy.deepcopy(default_config), project_config)
         else:
             logging.warning(f"Could not find a local project configuration: {local_config_path}.")
             project_config = default_config
