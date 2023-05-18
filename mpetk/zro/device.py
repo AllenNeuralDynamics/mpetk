@@ -620,7 +620,7 @@ class RemoteObject(object):
 
         """
         import platform
-        import zro
+        from mpetk import zro
         info = {
             "zro": zro.__version__,
             "zmq": zmq.zmq_version(),
