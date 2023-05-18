@@ -82,7 +82,7 @@ class RemoteObject(object):
         self._blacklist = []
         self.set_reply_ip(ip, rep_port)
 
-        self._start_time = time.clock()
+        self._start_time = time.perf_counter()
         self.start_datetime = datetime.datetime.now()
 
         # prevents ipython autocomplete from throwing warnings
@@ -597,7 +597,7 @@ class RemoteObject(object):
         Returns:
             float: uptime in seconds
         """
-        return time.clock()-self._start_time
+        return time.perf_counter()-self._start_time
 
     def get_uptime(self):
         """
