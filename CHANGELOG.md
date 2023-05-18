@@ -1,4 +1,7 @@
 # Changelog
+## 0.4.6.dev1 (2023-03-31)
+* Fixed "no module named zro" in RemoteObject
+* Replaced deprecated time.clock() with time.perf_counter()
 ## 0.4.6.dev0 (2023-03-31)
 ## 0.4.5.dev0 (2023-03-31)
 ## 0.4.4 (2023-03-31)
