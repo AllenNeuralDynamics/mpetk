@@ -1,4 +1,7 @@
 # Changelog
+## 0.4.6.dev2 (2023-05-22)
+* Updated the requirements.txt.  It removes a lot of cruft and is more permissive to pyzmq in particular
+
 ## 0.4.6.dev1 (2023-03-31)
 * Fixed "no module named zro" in RemoteObject
 * Replaced deprecated time.clock() with time.perf_counter()
