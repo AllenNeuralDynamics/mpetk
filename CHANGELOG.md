@@ -1,4 +1,7 @@
 # Changelog
+
+## 0.4.6.dev3 (2023-08-08)
+
 ## 0.4.6.dev2 (2023-05-22)
 * Updated the requirements.txt.  It removes a lot of cruft and is more permissive to pyzmq in particular
 
