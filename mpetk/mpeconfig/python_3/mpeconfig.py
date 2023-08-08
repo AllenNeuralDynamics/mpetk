@@ -139,7 +139,7 @@ class WebHandler(logging.handlers.SocketHandler):
 
 def source_configuration(
     project_name: str,
-    hosts: str = "aibspi.corp.alleninstitute.org:2181",
+    hosts: str = "eng-tools.corp.alleninstitute.org:2181",
     use_local_config: bool = False,
     send_start_log: bool = True,
     fetch_logging_config: bool = True,
@@ -172,6 +172,7 @@ def source_configuration(
     if use_local_config:
         return build_local_configuration(
             project_name, fetch_logging_config, fetch_project_config, send_start_log, version, serialization
+
         )
 
     with ConfigServer(hosts=hosts) as zk:
@@ -190,9 +191,7 @@ def source_configuration(
         local_log_path, local_config_path = get_platform_paths(mpe_defaults, project_name)
         project_config = None
 
-
         if fetch_project_config:
-
             project_config = compile_remote_configuration(zk, project_name, "configuration", rig_id=rig_id,
                                                           comp_id=comp_id, serialization=serialization)
             local_log_path, local_config_path = get_platform_paths(project_config, project_name)
@@ -202,10 +201,10 @@ def source_configuration(
         if fetch_logging_config:
             ensure_path(os.path.expandvars(local_log_path))
             log_config = compile_remote_configuration(zk, project_name, "logging", rig_id=rig_id, comp_id=comp_id)
-            setup_logging(project_name, os.path.expandvars(local_log_path), log_config, send_start_log, version=version, rig_id=rig_id,
+            setup_logging(project_name, os.path.expandvars(local_log_path), log_config, send_start_log, version=version,
+                          rig_id=rig_id,
                           comp_id=comp_id)
             cache_remote_config(log_config, local_log_path)
-
 
         return project_config
 
@@ -222,9 +221,9 @@ def ensure_path(path: str):
         os.makedirs(directory)
 
 
-
 def build_local_configuration(
-    project_name, fetch_logging_config=True, fetch_project_config=True, send_start_log=True, version=None
+    project_name, fetch_logging_config=True, fetch_project_config=True, send_start_log=True, version=None,
+    serialization="yaml"
 ):
     """
     Builds logging and project configuration from local files and mpeconfig defaults as necessary.  This can be useful
@@ -234,6 +233,7 @@ def build_local_configuration(
     :param project_name: The name of the configuration, usually project name, you want to find
     :param send_start_log: Whether or not to send a log to the webserver (not desirable for libraries) [default = True]
     :param version: Module version to add to log_record
+    :param serialization: What document format to parse
     :return:
     """
     default_config = yaml.load(default_config_dict, Loader=loader.Loader)
@@ -371,17 +371,18 @@ def compile_remote_configuration(zk, project_name, config_type="configuration", 
 
     mpe_defaults = fetch_configuration(zk, f"/mpe_defaults/{config_type}", required=True, serialization=serialization)
 
-    if zk.exists(f"/projects/{project_name}/defaults/{config_type}"):
+    if zk.exists(f"/projects/{project_name}"):
         project_config = fetch_configuration(zk, f"/projects/{project_name}/defaults/{config_type}",
                                              serialization=serialization)
         rig_config = fetch_configuration(zk, f"/rigs/{rig_name}/projects/{project_name}/{config_type}",
                                          serialization=serialization)
         comp_config = fetch_configuration(zk, f"/rigs/{comp_name}/projects/{project_name}/{config_type}",
                                           serialization=serialization)
+
         shared_rig_config = fetch_configuration(zk, f"/rigs/{rig_name}")
         shared_comp_config = fetch_configuration(zk, f"/rigs/{comp_name}")
 
-    elif zk.exists(f"/hardware/{project_name}/defaults/{config_type}"):
+    elif zk.exists(f"/hardware/{project_name}"):
         project_config = fetch_configuration(zk, f"/hardware/{project_name}/defaults/{config_type}",
                                              serialization=serialization)
         rig_config = fetch_configuration(zk, f"/rigs/{rig_name}/hardware/{project_name}/{config_type}",
@@ -402,10 +403,11 @@ def compile_remote_configuration(zk, project_name, config_type="configuration", 
     rtn_dict = deep_merge(copy.deepcopy(mpe_defaults), project_config)
     rtn_dict = deep_merge(copy.deepcopy(rtn_dict), rig_config)
     rtn_dict = deep_merge(copy.deepcopy(rtn_dict), comp_config)
-    rtn_dict = deep_merge(copy.deepcopy(rtn_dict), shared_config)
-    shared_dict = deep_merge(copy.deepcopy(shared_rig_config), shared_comp_config)
-    if shared_dict:
-        rtn_dict['shared'] = shared_dict
+    if config_type != "logging":
+        rtn_dict = deep_merge(copy.deepcopy(rtn_dict), shared_config)
+        shared_dict = deep_merge(copy.deepcopy(shared_rig_config), shared_comp_config)
+        if shared_dict:
+            rtn_dict['shared'] = shared_dict
     return rtn_dict
 
 
