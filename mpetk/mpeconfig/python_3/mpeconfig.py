@@ -22,8 +22,6 @@ from yaml.parser import ParserError
 
 from .config_server import ConfigServer
 
-# yaml.add_representer(dict, lambda self, data: yaml.representer.SafeRepresenter.represent_dict(self, data.items()))
-
 log_factory = logging.getLogRecordFactory()
 resource_path = f"{os.path.dirname(__file__)}/resources"
 
@@ -110,8 +108,6 @@ windows_install_paths:
     python: /mcpython3
 """
 
-aibs_session = ""
-
 
 class SerializationTypes(Enum):
     YAML = auto(),
@@ -159,12 +155,13 @@ def source_configuration(
     :param fetch_project_config: set to False if you do not want to source a project configuration
     :param fetch_logging_config: set to False if you do not want to source a logging configuration
     :param project_name: The name of the configuration, usually project name, you want to find
-    :param use_local_config: whether or not to use the local cache [default = True]
+    :param use_local_config: whether to use the local cache [default = True]
     :param hosts: The quorum to connect to (currently there is only aibspi)
-    :param send_start_log: Whether or not to send a log to the webserver (not desirable for libraries) [default = True]
+    :param send_start_log: Whether to send a log to the webserver (not desirable for libraries) [default = True]
     :param version: Current software version.  Can be specified but will be auto-detected if None
     :param rig_id: override for rig_id
     :param comp_id: override for comp_id
+    :param serialization: the format for the document in zookeeper ['yaml', 'ini', 'json', 'xml']
     :raises: KeyError if it can't find the default configuration
     :return:
     """
@@ -223,15 +220,15 @@ def ensure_path(path: str):
 
 def build_local_configuration(
     project_name, fetch_logging_config=True, fetch_project_config=True, send_start_log=True, version=None,
-    serialization="yaml"
+    serialization="yaml" # noqa
 ):
     """
     Builds logging and project configuration from local files and mpeconfig defaults as necessary.  This can be useful
-    for one off configurations for testing when you don't want to edit the zookeeper rig / comp configuration.
+    for one-off configurations for testing when you don't want to edit the zookeeper rig / comp configuration.
     :param fetch_project_config: set to False if you do not want to source a project configuration
     :param fetch_logging_config: set to False if you do not want to source a logging configuration
     :param project_name: The name of the configuration, usually project name, you want to find
-    :param send_start_log: Whether or not to send a log to the webserver (not desirable for libraries) [default = True]
+    :param send_start_log: Whether to send a log to the webserver (not desirable for libraries) [default = True]
     :param version: Module version to add to log_record
     :param serialization: What document format to parse
     :return:
@@ -273,7 +270,7 @@ def setup_logging(project_name: str, local_log_path: str, log_config: dict, send
     :param project_name: The name of the configuration, usually project name, you want to find
     :param local_log_path: The path to store log files
     :param log_config:  The dictionary containing the logging configuration
-    :param send_start_log: Whether or not to send a log to the webserver (not desirable for libraries) [default = True]
+    :param send_start_log: Whether to send a log to the webserver (not desirable for libraries) [default = True]
     :param version: The version of the software to record in the log record
     :param rig_id: Rig ID Override
     :param comp_id: Comp ID Override
@@ -310,7 +307,7 @@ def setup_logging(project_name: str, local_log_path: str, log_config: dict, send
     for level_name, level_no in logging_level_map.items():
         def level_func(message, level=level_no, *args, **kws):
             if logging.root.isEnabledFor(level):
-                logging.root._log(level, message, args, extra=kws.get("extra", {}))
+                logging.root._log(level, message, args, extra=kws.get("extra", {}))  # noqa
 
         logging.addLevelName(level_no, level_name)
         setattr(logging, level_name.lower(), level_func)
@@ -334,8 +331,8 @@ def setup_logging(project_name: str, local_log_path: str, log_config: dict, send
 def get_platform_paths(config, project_name):
     """
     Installation and other meta-data is described in the mpe defaults configuration.  This function figures out the
-    proper pathing for a given OS based on that coniguration and returns it.
-    :param config: configuration dictionary containing the install paths
+    proper pathing for a given OS based on that configuration and returns it.
+    :param config: configuration dictionary containing the installation paths
     :param project_name: The name of the configuration, usually project name, you want to find
     :return: (local_log_path: str, local_config_path: str)
     """
@@ -358,14 +355,10 @@ def compile_remote_configuration(zk, project_name, config_type="configuration", 
     :param config_type [hardware | projects ]
     :param rig_id: Rig ID Override
     :param comp_id: Comp ID Override
+    :param serialization: The format of the document in zookeeper [yaml, ini, json, xml]
     :return: Dictionary of merged configurations
     """
-
-    project_config = {}
-    rig_config = {}
-    comp_config = {}
     shared_config = {"shared": {}}
-
     rig_name = rig_id or os.environ.get("aibs_rig_id", "")
     comp_name = comp_id or os.environ.get("aibs_comp_id", "")
 
@@ -397,8 +390,8 @@ def compile_remote_configuration(zk, project_name, config_type="configuration", 
             logging.warning(f"Found no configuration available for {project_name}")
         return mpe_defaults
 
-    if serialization == 'plain_text':
-        return project_config.decode()
+    if serialization == 'plain_text':  # TODO check if this works or not
+        return project_config.decode()  # noqa
 
     rtn_dict = deep_merge(copy.deepcopy(mpe_defaults), project_config)
     rtn_dict = deep_merge(copy.deepcopy(rtn_dict), rig_config)
@@ -416,7 +409,8 @@ def fetch_configuration(server, config_path, required=False, serialization='yaml
     Pull a configuration from a zk path and deserialize it.
     :param server: active zk connection
     :param config_path: path to pull data from
-    :param required: whether or not it has to exist [default = False]
+    :param required: whether it has to exist [default = False]
+    :param serialization: the format for the document in zookeeper ['yaml', 'ini', 'json', 'xml']
     :return: YAML deserialization
     :raises: AttributeError if required and can't be deserialized
     :raises: KeyError if required but not found
@@ -472,7 +466,7 @@ def dict_to_namedtuple(dictionary):
     """
     Utility function to change dictionaries to namedtuples recursively
     :param dictionary: the dictionary to convert
-    :return: a named tupled version of the dictionary contents
+    :return: a namedtuple version of the dictionary contents
     """
     for key, value in dictionary.items():
         if isinstance(value, dict):
@@ -484,7 +478,7 @@ def deep_merge(dict_prime, dict_mod):
     """
     Utility function to do a deep merge on dictionaries.  Recommended to deep copy dict_prime when it's passed in as
     an argument as the original dictionary values are modified.  If a key is a list in both dicts, does not combine or
-    merge these lists.  Instead it favors the list from dict_mod.
+    merge these lists.  Instead, it favors the list from dict_mod.
     :param dict_prime: The dictionary to be merged into
     :param dict_mod: The dictionary to merge into the first parameter
     :return: the deep merged dictionary
