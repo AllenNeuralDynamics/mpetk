@@ -8,3 +8,4 @@ from .config_server import ConfigServer  # noqa
 from .mpeconfig import fetch_configuration
 from .mpeconfig import source_configuration  # noqa
 from .mpeconfig import source_configuration as source_project_configuration  # noqa
+from .webhandler import WebHandler

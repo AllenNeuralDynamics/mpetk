@@ -12,6 +12,8 @@ import logging.handlers
 import os
 import platform
 import shutil
+import sys
+import traceback
 from collections import namedtuple
 from enum import Enum, auto
 from hashlib import md5
@@ -21,6 +23,7 @@ from yaml import loader
 from yaml.parser import ParserError
 
 from .config_server import ConfigServer
+from .webhandler import WebHandler  # noqa  for backwards compatiblity
 
 log_factory = logging.getLogRecordFactory()
 resource_path = f"{os.path.dirname(__file__)}/resources"
@@ -28,67 +31,51 @@ resource_path = f"{os.path.dirname(__file__)}/resources"
 default_logging_dict = """
 disable_existing_loggers: true
 formatters:
-    detailed:
-        datefmt: '%m/%d/%Y %I:%M:%S %p'
-        format: '%(asctime)s, %(levelname)s, %(module)s::%(lineno)s, %(message)s'
-    log_server:
-        datefmt: '%Y-%m-%d %H:%M:%S'
-        format: '%(asctime)s\n%(name)s\n%(levelname)s\n%(funcName)s (%(filename)s:%(lineno)d)\n%(message)s'
-    simple:
-        datefmt: '%m/%d/%Y %I:%M:%S %p'
-        format: '%(asctime)s, %(message)s'
+  detailed:
+    datefmt: '%m/%d/%Y %I:%M:%S %p'
+    format: '%(asctime)s, %(levelname)s, %(module)s::%(lineno)s, %(message)s'
+  log_server:
+    datefmt: '%Y-%m-%d %H:%M:%S'
+    format: '%(asctime)s\n%(name)s\n%(levelname)s\n%(funcName)s (%(filename)s:%(lineno)d)\n%(message)s'
+  simple:
+    datefmt: '%m/%d/%Y %I:%M:%S %p'
+    format: '%(asctime)s, %(message)s'
 handlers:
-    console_handler:
-        class: logging.StreamHandler
-        formatter: simple
-        level: INFO
-        stream: ext://sys.stdout
-    debug_file_handler:
-        backupCount: 20
-        class: logging.handlers.RotatingFileHandler
-        encoding: utf8
-        filename: debug.log
-        formatter: detailed
-        level: ERROR
-        maxBytes: 10485760
-
-    file_handler:
-        backupCount: 20
-        class: logging.handlers.RotatingFileHandler
-        encoding: utf8
-        filename: log.log
-        formatter: simple
-        level: INFO
-        maxBytes: 10485760
-    info_socket_handler:
-        class: logging.handlers.SocketHandler
-        formatter: log_server
-        host: eng-logtools.corp.alleninstitute.org
-        level: INFO
-        port: 9000
-    socket_handler:
-        class: logging.handlers.SocketHandler
-        formatter: log_server
-        host: eng-logtools.corp.alleninstitute.org
-        level: WARNING
-        port: 9000
+  console_handler:
+    class: logging.StreamHandler
+    formatter: simple
+    level: INFO
+    stream: ext://sys.stdout
+  file_handler:
+    backupCount: 20
+    class: logging.handlers.RotatingFileHandler
+    encoding: utf8
+    filename: log.log
+    formatter: simple
+    level: INFO
+    maxBytes: 10485760
+  web_handler:
+    class: mpetk.mpeconfig.webhandler.WebHandler
+    formatter: log_server
+    host: eng-logtools.corp.alleninstitute.org
+    level: DEBUG
+    port: 9000
 loggers:
-    web_logger:
-        handlers:
-            - console_handler
-            - debug_file_handler
-            - info_socket_handler
-        level: INFO
-        propagate: false
-    root:
-        handlers:
-            - console_handler
-            - file_handler
-            - debug_file_handler
-            - socket_handler
-        level: INFO
-        propagate: false
-version: 1
+  web_logger:
+    handlers:
+      - console_handler
+      - file_handler
+      - web_handler
+    level: DEBUG
+    propagate: false
+root:
+  handlers:
+    - console_handler
+    - file_handler
+    - web_handler
+  level: INFO
+  propagate: false
+version: 2
 """
 
 default_config_dict = """
@@ -118,21 +105,6 @@ class SerializationTypes(Enum):
     INI = auto()
 
 
-class WebHandler(logging.handlers.SocketHandler):
-    """
-    Specialized socket handler that inspects the record dict for the attribute weblog.  If this attribute exists,
-    logs of level INFO and higher will propagate to the log server.  This allows the following syntax:
-    logging.info('My project is starting up', extra = {'weblog': True})
-    """
-
-    def __init__(self, host, port):
-        super().__init__(host, port)
-
-    def emit(self, record):
-        if hasattr(record, "weblog"):
-            super().emit(record)
-
-
 def source_configuration(
     project_name: str,
     hosts: str = "aibspi.corp.alleninstitute.org:2181",
@@ -143,7 +115,8 @@ def source_configuration(
     version: str = None,
     rig_id: str = None,
     comp_id: str = None,
-    serialization: str = "yaml"
+    serialization: str = "yaml",
+    always_pass_exc_info=False
 ):
     """
     Connects to the quorum and searches for the following paths:
@@ -162,6 +135,7 @@ def source_configuration(
     :param rig_id: override for rig_id
     :param comp_id: override for comp_id
     :param serialization: the format for the document in zookeeper ['yaml', 'ini', 'json', 'xml']
+    :param always_pass_exc_info: whether to always check for exc_info
     :raises: KeyError if it can't find the default configuration
     :return:
     """
@@ -200,7 +174,8 @@ def source_configuration(
             log_config = compile_remote_configuration(zk, project_name, "logging", rig_id=rig_id, comp_id=comp_id)
             setup_logging(project_name, os.path.expandvars(local_log_path), log_config, send_start_log, version=version,
                           rig_id=rig_id,
-                          comp_id=comp_id)
+                          comp_id=comp_id,
+                          always_pass_exc_info=always_pass_exc_info)
             cache_remote_config(log_config, local_log_path)
 
         return project_config
@@ -220,7 +195,7 @@ def ensure_path(path: str):
 
 def build_local_configuration(
     project_name, fetch_logging_config=True, fetch_project_config=True, send_start_log=True, version=None,
-    serialization="yaml" # noqa
+    serialization="yaml"  # noqa
 ):
     """
     Builds logging and project configuration from local files and mpeconfig defaults as necessary.  This can be useful
@@ -260,13 +235,12 @@ def build_local_configuration(
 
 
 def setup_logging(project_name: str, local_log_path: str, log_config: dict, send_start_log: bool, version: str,
-                  rig_id: str = None, comp_id: str = None):
+                  rig_id: str = None, comp_id: str = None, always_pass_exc_info=False):
     """
     Logging setup consists of
       1.  applying the logging configuration to the Python logging module
       2.  injecting additional data into the log records via the log factory
-      3.  adding a special socket handler to send data to the AIBSPI log server
-      4.  sending a start log and registering to send a stop log
+      3.  sending a start log and registering to send a stop log
     :param project_name: The name of the configuration, usually project name, you want to find
     :param local_log_path: The path to store log files
     :param log_config:  The dictionary containing the logging configuration
@@ -283,11 +257,15 @@ def setup_logging(project_name: str, local_log_path: str, log_config: dict, send
     log_config["handlers"]["debug_file_handler"]["filename"] = f"{logfile}_error.log"
 
     session_parts = [str(datetime.datetime.now()), platform.node(), str(os.getpid())]
-
     aibs_session = md5((''.join(session_parts)).encode("utf-8")).hexdigest()[:7]
 
     def record_factory(*args, **kwargs):
         record = log_factory(*args, **kwargs)
+
+        if not record.exc_info and always_pass_exc_info:
+            record.exc_info = sys.exc_info()
+            record.exc_text = traceback.format_exc()
+
         record.rig_name = rig_id or os.getenv("aibs_rig_id", "undefined")
         record.comp_id = comp_id or os.getenv("aibs_comp_id", "undefined")
         record.version = version
@@ -297,13 +275,8 @@ def setup_logging(project_name: str, local_log_path: str, log_config: dict, send
         return record
 
     logging.setLogRecordFactory(record_factory)
-
     logging.config.dictConfig(log_config)
 
-    host = log_config["handlers"]["socket_handler"]["host"]
-    port = log_config["handlers"]["socket_handler"]["port"]
-    handler = WebHandler(host, int(port))
-    handler.level = logging.INFO
     for level_name, level_no in logging_level_map.items():
         def level_func(message, level=level_no, *args, **kws):
             if logging.root.isEnabledFor(level):
@@ -311,9 +284,6 @@ def setup_logging(project_name: str, local_log_path: str, log_config: dict, send
 
         logging.addLevelName(level_no, level_name)
         setattr(logging, level_name.lower(), level_func)
-
-    logging.getLogger().addHandler(handler)
-    logging.getLogger(project_name).addHandler(handler)
 
     if send_start_log:
         logging.log(
