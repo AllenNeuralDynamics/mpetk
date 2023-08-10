@@ -1,14 +1,13 @@
 import logging
-from mpetk import mpeconfig
+from mpetk.mpeconfig import ConfigServer, source_configuration
 
-c = mpeconfig.source_configuration("mouse_director", version="fake", send_start_log=False, always_pass_exc_info=True)
+"""
+c = ConfigServer()
+c.start()
+print(c.client_state)
+print(c.connected)
+"""
 
-a = {'b': 0}
-try:
-   print(a['c'])
-except Exception:
-    logging.warning("Ignore me")
-
-
+c = source_configuration("mouse_director")
 
 

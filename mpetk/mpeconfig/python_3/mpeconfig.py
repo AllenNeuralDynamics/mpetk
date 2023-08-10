@@ -107,7 +107,7 @@ class SerializationTypes(Enum):
 
 def source_configuration(
     project_name: str,
-    hosts: str = "aibspi.corp.alleninstitute.org:2181",
+    hosts: str = "eng-logtools:2181,aibspi:2181",
     use_local_config: bool = False,
     send_start_log: bool = True,
     fetch_logging_config: bool = True,

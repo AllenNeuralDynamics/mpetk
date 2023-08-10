@@ -8,9 +8,8 @@ class ConfigServer(KazooClient):
     A dictionary and context API wrapper around the zookeeper interface.
     """
 
-    def __init__(self, hosts="aibspi:2181", timeout=1):
-        self.hosts = hosts
-        super().__init__(hosts=hosts, timeout=1)
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
 
     def __getitem__(self, key):
         if self.exists(key):
@@ -27,10 +26,7 @@ class ConfigServer(KazooClient):
             self.delete(key)
 
     def __enter__(self):
-        try:
-            self.start(timeout=1)
-        except KazooTimeoutError:
-            pass
+        self.start()
         return self
 
     def __exit__(self, exception_type, exception_value, traceback):
