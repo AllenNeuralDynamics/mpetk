@@ -1,63 +1,47 @@
 disable_existing_loggers: true
 formatters:
-    detailed:
-        datefmt: '%m/%d/%Y %I:%M:%S %p'
-        format: '%(asctime)s, %(levelname)s, %(module)s::%(lineno)s, %(message)s'
-    log_server:
-        datefmt: '%Y-%m-%d %H:%M:%S'
-        format: '%(asctime)s\n%(name)s\n%(levelname)s\n%(funcName)s (%(filename)s:%(lineno)d)\n%(message)s'
-    simple:
-        datefmt: '%m/%d/%Y %I:%M:%S %p'
-        format: '%(asctime)s, %(message)s'
+  detailed:
+    datefmt: '%m/%d/%Y %I:%M:%S %p'
+    format: '%(asctime)s, %(levelname)s, %(module)s::%(lineno)s, %(message)s'
+  log_server:
+    datefmt: '%Y-%m-%d %H:%M:%S'
+    format: '%(asctime)s\n%(name)s\n%(levelname)s\n%(funcName)s (%(filename)s:%(lineno)d)\n%(message)s'
+  simple:
+    datefmt: '%m/%d/%Y %I:%M:%S %p'
+    format: '%(asctime)s, %(message)s'
 handlers:
-    console_handler:
-        class: logging.StreamHandler
-        formatter: simple
-        level: INFO
-        stream: ext://sys.stdout
-    debug_file_handler:
-        backupCount: 20
-        class: logging.handlers.RotatingFileHandler
-        encoding: utf8
-        filename: debug.log
-        formatter: detailed
-        level: ERROR
-        maxBytes: 10485760
-
-    file_handler:
-        backupCount: 20
-        class: logging.handlers.RotatingFileHandler
-        encoding: utf8
-        filename: log.log
-        formatter: simple
-        level: INFO
-        maxBytes: 10485760
-    info_socket_handler:
-        class: logging.handlers.SocketHandler
-        formatter: log_server
-        host: eng-logtools.corp.alleninstitute.org
-        level: INFO
-        port: 9000
-    socket_handler:
-        class: logging.handlers.SocketHandler
-        formatter: log_server
-        host: eng-logtools.corp.alleninstitute.org
-        level: WARNING
-        port: 9000
+  console_handler:
+    class: logging.StreamHandler
+    formatter: simple
+    level: INFO
+    stream: ext://sys.stdout
+  file_handler:
+    backupCount: 20
+    class: logging.handlers.RotatingFileHandler
+    encoding: utf8
+    filename: log.log
+    formatter: detailed
+    level: INFO
+    maxBytes: 10485760
+  web_handler:
+    class: mpetk.mpeconfig.mpeconfig.WebHandler
+    formatter: log_server
+    host: eng-logtools.corp.alleninstitute.org
+    level: INFO
+    port: 9000
 loggers:
-    web_logger:
-        handlers:
-            - console_handler
-            - debug_file_handler
-            - info_socket_handler
-        level: INFO
-        propagate: false
-    root:
-        handlers:
-            - console_handler
-            - file_handler
-            - debug_file_handler
-            - socket_handler
-        level: INFO
-        propagate: false
+  web_logger:
+    handlers:
+      - console_handler
+      - file_handler
+      - web_handler
+    level: INFO
+    propagate: false
+root:
+  handlers:
+    - console_handler
+    - file_handler
+    - web_handler
+  level: INFO
+  propagate: false
 version: 1
