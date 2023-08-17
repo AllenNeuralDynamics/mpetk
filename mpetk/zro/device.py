@@ -33,7 +33,7 @@ ioloop_instance = ioloop.IOLoop.instance()
 from .proxy import Proxy
 from .error import ZroError
 from .misc import get_address, is_valid_ipv4_address
-
+from mpetk import __version__
 
 
 class RemoteObject(object):
@@ -622,7 +622,7 @@ class RemoteObject(object):
         import platform
         from mpetk import zro
         info = {
-            "zro": zro.__version__,
+            "zro": __version__,
             "zmq": zmq.zmq_version(),
             "pyzmq": zmq.pyzmq_version(),
             "python": sys.version.split()[0],
