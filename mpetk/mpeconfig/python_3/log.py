@@ -109,6 +109,9 @@ def setup_logging(project_name: str, local_log_path: str, log_config: dict, send
     logging.setLogRecordFactory(record_factory)
     logging.config.dictConfig(log_config)
 
+    for handler in logging.getLogger().handlers:
+        handler.set_name(project_name)
+
     for level_name, level_no in logging_level_map.items():
         def level_func(message, level=level_no, *args, **kws):
             if logging.root.isEnabledFor(level):

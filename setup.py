@@ -77,6 +77,7 @@ if __name__ == '__main__':
             'psutil==5.8.0',
             'protobuf==3.12.4',
             'graphviz==0.14.1',
+            'pymsteams==0.2.2',
             'pyzmq==19.0.2',
             'tornado==4.5.3',
             'watchdog==2.0.2',

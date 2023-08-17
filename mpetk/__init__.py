@@ -4,5 +4,6 @@ from . import mpeconfig
 from . import piddl
 from . import zro
 from . import aibsmw
+from . import teams
 
 __version__ = '0.4.6'
