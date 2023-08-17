@@ -33,9 +33,9 @@ ioloop_instance = ioloop.IOLoop.instance()
 from .proxy import Proxy
 from .error import ZroError
 from .misc import get_address, is_valid_ipv4_address
-from mpetk import __version__
 
 
+__version__ = "0.5.0.dev0"
 class RemoteObject(object):
     """
     Remote object device designed to be extended.  It serializes responses to
