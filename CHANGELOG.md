@@ -1,5 +1,5 @@
 # Changelog
-## 0.5.0 (2023-08-17)
+## 0.5.0.dev0 (2023-08-17)
 * teamstk now added
 * rewrites to mpeconfig
 
