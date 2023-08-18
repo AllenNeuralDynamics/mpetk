@@ -88,7 +88,6 @@ def source_configuration(
     if use_local_config:
         return build_local_configuration(
             project_name, fetch_logging_config, fetch_project_config, send_start_log, version, serialization
-
         )
 
     with ConfigServer(hosts=hosts) as zk:
