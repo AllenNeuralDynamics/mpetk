@@ -23,7 +23,7 @@ class install(_install):
 if __name__ == '__main__':
     setup(
         name='mpetk',
-        version='0.5.0.dev1',
+        version='0.5.0.dev2',
         description='configuration tools for mpe projects',
         long_description='configuration tools for mpe projects',
         long_description_content_type=None,
@@ -54,7 +54,8 @@ if __name__ == '__main__':
             'mpetk.mpeconfig.python_3',
             'mpetk.mtrain',
             'mpetk.piddl',
-            'mpetk.zro'
+            'mpetk.zro',
+            'mpetk.teams',
         ],
         namespace_packages=[],
         py_modules=[],
