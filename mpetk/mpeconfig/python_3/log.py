@@ -109,6 +109,11 @@ def setup_logging(project_name: str, local_log_path: str, log_config: dict, send
     logging.setLogRecordFactory(record_factory)
     logging.config.dictConfig(log_config)
 
+    host = log_config["handlers"]["socket_handler"]["host"]
+    port = log_config["handlers"]["socket_handler"]["port"]
+    handler = WebHandler(host, int(port))
+    handler.level = logging.INFO
+
     for handler in logging.getLogger().handlers:
         handler.set_name(project_name)
 
