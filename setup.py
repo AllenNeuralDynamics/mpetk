@@ -23,7 +23,7 @@ class install(_install):
 if __name__ == '__main__':
     setup(
         name='mpetk',
-        version='0.5.0.dev3',
+        version='0.5.0.dev4',
         description='configuration tools for mpe projects',
         long_description='configuration tools for mpe projects',
         long_description_content_type=None,

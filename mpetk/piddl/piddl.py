@@ -19,16 +19,15 @@ def one_instance(mode: InstanceLocks = InstanceLocks.PID_FILE, clobber_stale: bo
     """
     if mode == InstanceLocks.PID_FILE:
         def decorator(function):
-            try:
-                make_pid_file(clobber_stale=clobber_stale)
-            except PidFileAlreadyRunningError:
-                logging.warning('This application is already running.  Exiting.')
-                exit(2)
-            except PidFileStaleError:
-                logging.warning('A PID File for this application exists but appears stale.')
-                exit(1)
-
             def inner_function(*args, **kwargs):
+                try:
+                    make_pid_file(clobber_stale=clobber_stale)
+                except PidFileAlreadyRunningError:
+                    logging.warning('This application is already running.  Exiting.')
+                    exit(2)
+                except PidFileStaleError:
+                    logging.warning('A PID File for this application exists but appears stale.')
+                    exit(1)
                 function(*args, **kwargs)
 
             return inner_function
@@ -37,13 +36,12 @@ def one_instance(mode: InstanceLocks = InstanceLocks.PID_FILE, clobber_stale: bo
 
     elif mode == InstanceLocks.DAEMON_LOCK:
         def decorator(function):
-            try:
-                make_socket()
-            except OSError:
-                logging.warning('This application is already running.  Exiting.')
-                exit(2)
-
             def inner_function(*args, **kwargs):
+                try:
+                    make_socket()
+                except OSError:
+                    logging.warning('This application is already running.  Exiting.')
+                    exit(2)
                 function(*args, **kwargs)
 
             return inner_function

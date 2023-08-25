@@ -12,8 +12,6 @@ from hashlib import md5
 
 from queue import Queue
 
-q = Queue()
-
 default_logging_dict = """
 disable_existing_loggers: true
 formatters:
@@ -64,6 +62,8 @@ root:
 version: 2
 """
 
+log_record_factory = logging.getLogRecordFactory()
+q = Queue()
 queue_handlers = {}
 
 logging_level_map = {"START_STOP": logging.WARNING + 5, "ADMIN": logging.WARNING + 6, "LIMS": logging.WARNING + 7,
@@ -91,7 +91,6 @@ def setup_logging(project_name: str, local_log_path: str, log_config: dict, send
 
     session_parts = [str(datetime.datetime.now()), platform.node(), str(os.getpid())]
     aibs_session = md5((''.join(session_parts)).encode("utf-8")).hexdigest()[:7]
-    log_record_factory = logging.getLogRecordFactory()
 
     def record_factory(*args, **kwargs):
         record = log_record_factory(*args, **kwargs)
@@ -109,8 +108,8 @@ def setup_logging(project_name: str, local_log_path: str, log_config: dict, send
     logging.setLogRecordFactory(record_factory)
     logging.config.dictConfig(log_config)
 
-    host = log_config["handlers"]["socket_handler"]["host"]
-    port = log_config["handlers"]["socket_handler"]["port"]
+    host = log_config["handlers"]["info_socket_handler"]["host"]
+    port = log_config["handlers"]["info_socket_handler"]["port"]
     handler = WebHandler(host, int(port))
     handler.level = logging.INFO
 

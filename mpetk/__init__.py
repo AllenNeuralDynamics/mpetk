@@ -6,4 +6,4 @@ from . import zro
 # from . import aibsmw
 from . import teams
 
-__version__ = '0.5.0.dev3'
+__version__ = '0.5.0.dev4'
