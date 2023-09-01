@@ -52,7 +52,7 @@ class SerializationTypes(Enum):
 
 def source_configuration(
     project_name: str,
-    hosts: str = "eng-logtools:2181,aibspi:2181",
+    hosts: str = "aibspi:2181,eng-logtools:2181",
     use_local_config: bool = False,
     send_start_log: bool = True,
     fetch_logging_config: bool = True,
@@ -90,7 +90,7 @@ def source_configuration(
             project_name, fetch_logging_config, fetch_project_config, send_start_log, version, serialization
         )
 
-    with ConfigServer(hosts=hosts) as zk:
+    with ConfigServer(hosts=hosts,randomize_hosts=False) as zk:
         """
         Connection to the Zookeeper Server
         """
