@@ -11,7 +11,7 @@ import yaml
 from yaml import representer
 
 yaml.add_representer(dict, lambda self, data: yaml.representer.SafeRepresenter.represent_dict(self, data.items()))
-
+from yaml import loader
 
 def delete(server, path):
     """
@@ -53,9 +53,10 @@ def pull(server, path, file, serialization="yaml"):
     if path.startswith("//"):
         path = path[1:]
     print("pulling from", path)
-    data = yaml.safe_load(server[path])
+    data = yaml.load(server[path], Loader=loader.Loader)
     if file:
         with open(file, "w") as f:
+
             yaml.dump(data, f, default_flow_style=False)
     return data
 
@@ -118,11 +119,13 @@ def dump_to_dir(server, path, recursive=False, indent=0):
         print(err)
         print("ignoring", path)
 
-    for p in server.get_children(path):
-        if p == "zookeeper":
-            continue
-        dump_to_dir(server, f"{path}/{p}", recursive=True, indent=indent + 1)
-
+    try:
+        for p in server.get_children(path):
+            if p == "zookeeper":
+                continue
+            dump_to_dir(server, f"{path}/{p}", recursive=True, indent=indent + 1)
+    except kazoo.exceptions.NoAuthError:
+        print(f"Ignoring {path}")
 
 def load_from_dir(server):
     import glob
@@ -160,7 +163,7 @@ def main():
     parser.add_argument(
         "-r", "--recursive", action="store_true", help="determines whether to list, copy and delete recursively"
     )
-    parser.add_argument("--hosts", default=["aibspi:2181"], help="a list of zookeeper hosts:  aibspi:2181,aibspi2:1234")
+    parser.add_argument("--hosts", default=["eng-logtools:2181"], help="a list of zookeeper hosts:  aibspi:2181,aibspi2:1234")
 
     args = parser.parse_args(sys.argv[1:])
 
@@ -168,7 +171,7 @@ def main():
     server.start()
     if args.command == "dump":
         dump_to_dir(server, "/", True)
-    if args.command == "load":
+    elif args.command == "load":
         load_from_dir(server)
 
     elif args.command == "pull":
