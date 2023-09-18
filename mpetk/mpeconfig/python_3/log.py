@@ -108,8 +108,8 @@ def setup_logging(project_name: str, local_log_path: str, log_config: dict, send
     logging.setLogRecordFactory(record_factory)
     logging.config.dictConfig(log_config)
 
-    host = log_config["handlers"]["info_socket_handler"]["host"]
-    port = log_config["handlers"]["info_socket_handler"]["port"]
+    host = log_config["handlers"]["web_handler"]["host"]
+    port = log_config["handlers"]["web_handler"]["port"]
     handler = WebHandler(host, int(port))
     handler.level = logging.INFO
 
