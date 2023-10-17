@@ -8,3 +8,7 @@ pyzmq>=19.0.2, <26
 watchdog==2.0.2
 zmq==0.0.0
 pymsteams~=0.2.1
+
+mpetk~=0.5.0.dev4
+setuptools~=66.0.0
+crayons~=0.4.0
