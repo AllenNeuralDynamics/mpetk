@@ -103,6 +103,8 @@ def setup_logging(project_name: str, local_log_path: str, log_config: dict, send
         record.project = project_name
         if type(record.msg) is str:
             record.msg = record.msg if record.msg and record.msg[-1] == ',' else record.msg + ','
+        if isinstance(record.msg, dict):
+            record.msg = ", ".join([str(item) for keyval in record.msg.items() for item in keyval])
         return record
 
     logging.setLogRecordFactory(record_factory)
