@@ -101,6 +101,7 @@ def setup_logging(project_name: str, local_log_path: str, log_config: dict, send
         record.comp_id = comp_id or os.getenv("aibs_comp_id", "undefined")
         record.version = version
         record.project = project_name
+        record.log_session = aibs_session
         if type(record.msg) is str:
             record.msg = record.msg if record.msg and record.msg[-1] == ',' else record.msg + ','
         if isinstance(record.msg, dict):
