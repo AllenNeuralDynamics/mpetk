@@ -67,7 +67,7 @@ q = Queue()
 queue_handlers = {}
 
 logging_level_map = {"START_STOP": logging.WARNING + 5, "ADMIN": logging.WARNING + 6, "LIMS": logging.WARNING + 7,
-                     "MTRAIN": logging.WARNING + 8}
+                     "MTRAIN": logging.WARNING + 8, "SLIMS":logging.WARNING + 9}
 
 
 def setup_logging(project_name: str, local_log_path: str, log_config: dict, send_start_log: bool, version: str,
