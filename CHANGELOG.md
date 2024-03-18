@@ -1,4 +1,10 @@
 # Changelog
+
+## 0.5.1.dev0 (2024-03-18)
+* Logging updates
+    * log functions now accept a dict to be comma-separated for the log server
+    * Add log session to record_factory to allow log_server to organize logs by session
+
 ## 0.5.0 (2023-09-18)
 ## 0.5.0.dev5 (2023-09-01)
 ## 0.5.0.dev4  (2023-08-24)
