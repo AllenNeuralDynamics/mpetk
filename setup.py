@@ -72,6 +72,8 @@ if __name__ == '__main__':
         },
         install_requires=[
             'kazoo==2.8.0',
+            'keyring~=23.0.1',
+            'pykeepass~=4.0.7',
             'pyyaml==5.3',
             'requests==2.25.1',
             'psutil==5.8.0',
@@ -80,6 +82,7 @@ if __name__ == '__main__':
             'pymsteams==0.2.1',
             'pyzmq==19.0.2',
             'tornado==4.5.3',
+            'toml==0.10.2',
             'watchdog==2.0.2',
             'zmq==0.0.0'
         ],

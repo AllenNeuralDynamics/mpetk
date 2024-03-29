@@ -6,4 +6,6 @@ from . import zro
 # from . import aibsmw
 from . import teams
 
+from . import credentials
+
 __version__ = '0.5.1.dev0'
