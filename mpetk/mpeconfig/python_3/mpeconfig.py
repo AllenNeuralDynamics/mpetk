@@ -113,6 +113,9 @@ def source_configuration(
             ensure_path(local_config_path)
             cache_remote_config(project_config, local_config_path)
 
+        if project_config and 'shared' in project_config:
+            shared_session_config = project_config['shared'].get('shared_session_id')
+
         if fetch_logging_config:
             ensure_path(os.path.expandvars(local_log_path))
             log_config = compile_remote_configuration(zk, project_name, "logging_v2", rig_id=rig_id, comp_id=comp_id)
