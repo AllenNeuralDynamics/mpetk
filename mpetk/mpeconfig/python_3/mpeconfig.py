@@ -113,6 +113,7 @@ def source_configuration(
             ensure_path(local_config_path)
             cache_remote_config(project_config, local_config_path)
 
+        shared_session_config = {}
         if project_config and 'shared' in project_config:
             shared_session_config = project_config['shared'].get('shared_session_id')
 
@@ -122,7 +123,8 @@ def source_configuration(
             setup_logging(project_name, os.path.expandvars(local_log_path), log_config, send_start_log, version=version,
                           rig_id=rig_id,
                           comp_id=comp_id,
-                          always_pass_exc_info=always_pass_exc_info)
+                          always_pass_exc_info=always_pass_exc_info,
+                          shared_session_config=shared_session_config)
             cache_remote_config(log_config, local_log_path)
 
         return project_config
@@ -229,6 +231,9 @@ def compile_remote_configuration(zk, project_name, config_type="configuration", 
 
         shared_rig_config = fetch_configuration(zk, f"/rigs/{rig_name}")
         shared_comp_config = fetch_configuration(zk, f"/rigs/{comp_name}")
+        # if config_type == 'logging_v2':
+        #     shared_rig_config = fetch_configuration(zk, f'/rigs/{rig_name}/{config_type})')
+        #     shared_comp_config = fetch_configuration(zk, f'/rigs/{comp_name}/{config_type})')
 
     elif zk.exists(f"/hardware/{project_name}"):
         project_config = fetch_configuration(zk, f"/hardware/{project_name}/defaults/{config_type}",
@@ -239,6 +244,9 @@ def compile_remote_configuration(zk, project_name, config_type="configuration", 
                                           serialization=serialization)
         shared_rig_config = fetch_configuration(zk, f"/rigs/{rig_name}", serialization=serialization)
         shared_comp_config = fetch_configuration(zk, f"/rigs/{comp_name}", serialization=serialization)
+        # if config_type == 'logging_v2':
+        #     shared_rig_config = fetch_configuration(zk, f'/rigs/{rig_name}/{config_type})')
+        #     shared_comp_config = fetch_configuration(zk, f'/rigs/{comp_name}/{config_type})')
 
     else:
         if config_type != "logging_v2":

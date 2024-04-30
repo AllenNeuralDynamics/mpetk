@@ -12,7 +12,7 @@ from hashlib import md5
 
 from queue import Queue
 
-from mpetk.mpeconfig.python_3.session_id_db import GlobalSessionID
+from mpetk.mpeconfig.python_3.session_id_db import session_manager
 
 default_logging_dict = """
 disable_existing_loggers: true
@@ -94,7 +94,8 @@ def setup_logging(project_name: str, local_log_path: str, log_config: dict, send
     session_parts = [str(datetime.datetime.now()), platform.node(), str(os.getpid())]
     aibs_session = md5((''.join(session_parts)).encode("utf-8")).hexdigest()[:7]
 
-    session_manager = GlobalSessionID(channel=rig_id,**(shared_session_config or {}))
+    # Configure session manager singleton
+    session_manager.__init__(channel=rig_id,**(shared_session_config or {}))
 
     def record_factory(*args, **kwargs):
         record = log_record_factory(*args, **kwargs)
@@ -107,10 +108,12 @@ def setup_logging(project_name: str, local_log_path: str, log_config: dict, send
         record.project = project_name
         record.app_session = aibs_session
         record.shared_session = session_manager.session
+
         if type(record.msg) is str:
             record.msg = record.msg if record.msg and record.msg[-1] == ',' else record.msg + ','
         if isinstance(record.msg, dict):
             record.msg = ", ".join([str(item) for keyval in record.msg.items() for item in keyval])
+            
         return record
 
     logging.setLogRecordFactory(record_factory)

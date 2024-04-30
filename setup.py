@@ -79,6 +79,7 @@ if __name__ == '__main__':
             'graphviz==0.14.1',
             'pymsteams==0.2.1',
             'pyzmq==19.0.2',
+            'redis~=4.3.4',
             'tornado==4.5.3',
             'watchdog==2.0.2',
             'zmq==0.0.0'
