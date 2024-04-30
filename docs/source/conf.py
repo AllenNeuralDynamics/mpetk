@@ -9,7 +9,7 @@
 project = "mpetk"
 copyright = "2024, Ross Hytnen"
 author = "Ross Hytnen"
-release = "0.5.1"
+release = "0.5.1.dev0"
 
 # -- General configuration ---------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#general-configuration
