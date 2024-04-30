@@ -12,4 +12,13 @@ build:
     - python.exe  setup.py -v clean --all bdist_wheel
 
 
+build_docs:
+  extends: build
+  stage: build
+  # before_script: 
+  script: 
+    - python -m pip install -r requirements_dev.txt
+    - sphinx-build -M html docs/source/ public_html
+
+
 include: 'http://aibspi.corp.alleninstitute.org/infrastructure/mpeci/raw/master/resources/gitlab-ci-template.yml'
