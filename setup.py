@@ -23,7 +23,7 @@ class install(_install):
 if __name__ == '__main__':
     setup(
         name='mpetk',
-        version='0.5.1.dev0',
+        version='0.5.2.dev0',
         description='configuration tools for mpe projects',
         long_description='configuration tools for mpe projects',
         long_description_content_type=None,
@@ -86,6 +86,6 @@ if __name__ == '__main__':
         dependency_links=[],
         zip_safe=True,
         cmdclass={'install': install},
-        python_requires='',
+        python_requires='>=3.9.5, <=3.12.3',
         obsoletes=[],
     )
