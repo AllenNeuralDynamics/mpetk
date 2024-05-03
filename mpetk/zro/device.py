@@ -850,7 +850,7 @@ class BasePubRepDevice(RemoteObject):
 class BaseSubRepDevice(RemoteObject):
     """
     Repy device that also subscribes to publisher sockets.  Creates a new
-        subscriber socket for each subscription.
+        subscriber socket for each subscriber.
 
     Why do we use multiple subscriber sockets instead of connecting one
         subscriber socket to many publishers?  So that we can know where each
@@ -869,7 +869,7 @@ class BaseSubRepDevice(RemoteObject):
 
     def add_subscription(self, ip, pub_port, hwm=1):
         """
-        Adds a subscription to a publisher at a specified ip and port.
+        Adds a subscriber to a publisher at a specified ip and port.
 
         Args:
             ip (str): ip address of publisher
@@ -887,7 +887,7 @@ class BaseSubRepDevice(RemoteObject):
 
     def remove_subscription(self, ip, port=None):
         """
-        Removes any subscription that matches the specified ip and optional
+        Removes any subscriber that matches the specified ip and optional
             port.
 
         Args:
@@ -899,7 +899,7 @@ class BaseSubRepDevice(RemoteObject):
             if ip in con_str:
                 self._subscriptions[con_str].close()
                 del self._subscriptions[con_str]
-                logging.info("Removed subscription on {}".format(con_str))
+                logging.info("Removed subscriber on {}".format(con_str))
 
     def remove_all_subscriptions(self):
         """
@@ -918,7 +918,7 @@ class BaseSubRepDevice(RemoteObject):
 
     def run_forever(self):
         """
-        Continuously checks the reply and subscription sockets.
+        Continuously checks the reply and subscriber sockets.
 
         ##TODO: Use ioloop like the other devices.
 

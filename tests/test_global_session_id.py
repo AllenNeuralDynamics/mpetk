@@ -24,7 +24,7 @@ def stop_redis():
 def generate_sessions(n: int, *args, **kwargs):
     sessions = []
     for _ in range(3):
-        sessions.append(SharedSessionId(*args, **kwargs))
+        sessions.append(SharedSessionId(**kwargs))
     return sessions
 
 

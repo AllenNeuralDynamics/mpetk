@@ -9,7 +9,6 @@ import platform
 import sys
 import traceback
 from hashlib import md5
-
 from queue import Queue
 
 from mpetk.mpeconfig.python_3.session_id_db import session_manager
@@ -69,11 +68,11 @@ q = Queue()
 queue_handlers = {}
 
 logging_level_map = {"START_STOP": logging.WARNING + 5, "ADMIN": logging.WARNING + 6, "LIMS": logging.WARNING + 7,
-                     "MTRAIN": logging.WARNING + 8, "SLIMS":logging.WARNING + 9}
+                     "MTRAIN": logging.WARNING + 8, "SLIMS": logging.WARNING + 9}
 
 
 def setup_logging(project_name: str, local_log_path: str, log_config: dict, send_start_log: bool, version: str,
-                  rig_id: str = None, comp_id: str = None, always_pass_exc_info=False,shared_session_config=None):
+                  rig_id: str = None, comp_id: str = None, always_pass_exc_info=False, shared_session_config=None):
     """
     Logging setup consists of
       1.  applying the logging configuration to the Python logging module
@@ -95,7 +94,7 @@ def setup_logging(project_name: str, local_log_path: str, log_config: dict, send
     aibs_session = md5((''.join(session_parts)).encode("utf-8")).hexdigest()[:7]
 
     # Configure session manager singleton
-    session_manager.__init__(channel=rig_id,**(shared_session_config or {}))
+    session_manager.__init__(channel=rig_id, **(shared_session_config or {}))
 
     def record_factory(*args, **kwargs):
         record = log_record_factory(*args, **kwargs)
@@ -113,7 +112,7 @@ def setup_logging(project_name: str, local_log_path: str, log_config: dict, send
             record.msg = record.msg if record.msg and record.msg[-1] == ',' else record.msg + ','
         if isinstance(record.msg, dict):
             record.msg = ", ".join([str(item) for keyval in record.msg.items() for item in keyval])
-            
+
         return record
 
     logging.setLogRecordFactory(record_factory)
