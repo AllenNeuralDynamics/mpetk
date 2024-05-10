@@ -19,7 +19,7 @@ from yaml import loader
 from yaml.parser import ParserError
 
 from . config_server import ConfigServer
-from . log import WebHandler, setup_logging, default_logging_dict  # noqa  for backwards compatiblity
+from . log import WebHandler, setup_logging, default_logging_dict, session_manager  # noqa  for backwards compatiblity
 
 resource_path = f"{os.path.dirname(__file__)}/resources"
 
