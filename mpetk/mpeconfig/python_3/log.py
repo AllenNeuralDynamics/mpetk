@@ -11,7 +11,9 @@ import traceback
 from hashlib import md5
 from queue import Queue
 
-from mpetk.mpeconfig.python_3.session_id_db import session_manager
+from mpetk.mpeconfig.python_3.session_id_db import SharedSessionId
+
+session_manager = None
 
 default_logging_dict = """
 disable_existing_loggers: true
@@ -94,7 +96,8 @@ def setup_logging(project_name: str, local_log_path: str, log_config: dict, send
     aibs_session = md5((''.join(session_parts)).encode("utf-8")).hexdigest()[:7]
 
     # Configure session manager singleton
-    session_manager.__init__(channel=rig_id, **(shared_session_config or {}))
+    global session_manager
+    session_manager = SharedSessionId(channel=rig_id, **(shared_session_config or {}))
 
     def record_factory(*args, **kwargs):
         record = log_record_factory(*args, **kwargs)

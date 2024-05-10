@@ -40,6 +40,10 @@ windows_install_paths:
     python: /mcpython3
 """
 
+def start_session():
+    if session_manager:
+        session_manager.start()
+        
 
 class SerializationTypes(Enum):
     YAML = auto(),
