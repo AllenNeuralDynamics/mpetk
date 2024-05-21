@@ -14,10 +14,18 @@ from datetime import datetime
 from inspect import signature
 from socket import AF_INET, SOCK_DGRAM, SOL_SOCKET, SO_BROADCAST, SO_RCVTIMEO
 import zmq
-import graphviz
-from graphviz import Digraph, ExecutableNotFound
+# import graphviz
+# from graphviz import Digraph, ExecutableNotFound
 from .exceptions import *
+
+# conditional needed for import of aibsmw_messages_pb2 until a recompile 
+# using a newer protoc
+from importlib.metadata import version
+pb_ver = version('protobuf')
+if (int(pb_ver[0]) == 3 and int(pb_ver[1]) > 20) or int(pb_ver[0]) > 3:
+    os.environ["PROTOCOL_BUFFERS_PYTHON_IMPLEMENTATION"] = "python"
 from .. import aibsmw_messages_pb2
+
 #import multiprocessing
 import threading
 import psutil
@@ -106,22 +114,22 @@ class Router(object):
 ## Should we get rid of this??
     def generate_traffic_report(self):
         return
-        registered_clients = []
-        for k, v in self.registration.items():
-            registered_clients += v
-        registered_clients = list(set(registered_clients))
-        publishing_clients = list(set(header[0] for header in self.message_headers))
-        dot = Digraph(comment=f'{socket.gethostname()} Traffic Report')
-        for client in self.clients:
-            dot.attr('node', width='3')
-            dot.node(str(client), str(client))
+        # registered_clients = []
+        # for k, v in self.registration.items():
+        #     registered_clients += v
+        # registered_clients = list(set(registered_clients))
+        # publishing_clients = list(set(header[0] for header in self.message_headers))
+        # dot = Digraph(comment=f'{socket.gethostname()} Traffic Report')
+        # for client in self.clients:
+        #     dot.attr('node', width='3')
+        #     dot.node(str(client), str(client))
 
-        for message in self.message_headers:
-            for client in self.registration[message[1]]:
-                dot.edge(str(message[0]), str(client), label=message[1].decode())
+        # for message in self.message_headers:
+        #     for client in self.registration[message[1]]:
+        #         dot.edge(str(message[0]), str(client), label=message[1].decode())
 
-        gv_file = 'traffic_report.gv'
-        dot.render(gv_file, view=False, format='png')
+        # gv_file = 'traffic_report.gv'
+        # dot.render(gv_file, view=False, format='png')
 
     def _poll(self):
         """

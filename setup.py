@@ -23,7 +23,7 @@ class install(_install):
 if __name__ == '__main__':
     setup(
         name='mpetk',
-        version='0.5.1.dev0',
+        version='0.5.2.dev0',
         description='configuration tools for mpe projects',
         long_description='configuration tools for mpe projects',
         long_description_content_type=None,
@@ -71,21 +71,21 @@ if __name__ == '__main__':
                                 'python_3/resources/mpe_defaults_logging.yml']
         },
         install_requires=[
-            'kazoo==2.8.0',
-            'pyyaml==5.3',
-            'requests==2.25.1',
-            'psutil==5.8.0',
-            'protobuf>=3.12.4,<5.0.0',
-            'graphviz==0.14.1',
-            'pymsteams==0.2.1',
-            'pyzmq==19.0.2',
-            'tornado==4.5.3',
-            'watchdog==2.0.2',
-            'zmq==0.0.0'
+            'kazoo~=2.10.0',
+            'protobuf>=4.23.4,<=4.25.3',
+            'psutil~=5.9.8',
+            'pymsteams~=0.2.2',
+            'PyYAML~=6.0.0',
+            'pyzmq>=25.1.0,<=26.0.2',
+            'redis~=5.0.4',
+            'requests~=2.31.0',
+            'tornado~=6.4',
+            'urllib3~=2.2.1',
+            'watchdog~=4.0.0'
         ],
         dependency_links=[],
         zip_safe=True,
         cmdclass={'install': install},
-        python_requires='',
+        python_requires='>=3.9.5,<=3.12.3',
         obsoletes=[],
     )
