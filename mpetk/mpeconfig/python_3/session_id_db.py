@@ -142,7 +142,7 @@ class SharedSessionId:
 
     def start_session(self, time_to_live_s: int, kill_existing: bool = True):
         if self.session == self.rdb.get(self.channel) and not kill_existing:  # I think we don't do anything here
-            return
+            raise ValueError('A session is already running. Pass `kill_existing=True` to replace it.')
         key = uuid.uuid4().hex
         self.rdb.set(self.channel, key, ex=time_to_live_s)
         logger.info(f"Action: Beginning shared session {key}", extra={"weblog": True})
@@ -151,9 +151,3 @@ class SharedSessionId:
         logging.info({"Action": "Ended shared session {self.session}"}, extra={"weblog": True}, )
         self.rdb.delete(self.channel)
 
-
-if __name__ == '__main__':
-    session_manager = SharedSessionId()
-
-    start_session: typing.Callable = session_manager.start_session
-    end_session: typing.Callable = session_manager.end_session

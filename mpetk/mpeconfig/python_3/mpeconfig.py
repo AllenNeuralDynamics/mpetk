@@ -40,9 +40,16 @@ windows_install_paths:
     python: /mcpython3
 """
 
-def start_session():
+def start_session(time_to_live_s:int, kill_existing:bool = True):
     if session_manager:
-        session_manager.start()
+        session_manager.start_session(time_to_live_s, kill_existing)
+    else:
+        return None
+
+        
+def end_session():
+    if session_manager:
+        session_manager.end_session()
         
 
 class SerializationTypes(Enum):
