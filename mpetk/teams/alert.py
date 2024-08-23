@@ -1,78 +1,145 @@
 import datetime
 import logging
-import os
-import socket
+import requests
+
+from adaptive_card import AdaptiveCard
 from collections import deque
-
-import pymsteams
-
 from mpetk import mpeconfig
+from typing import List, Optional
 
-config = mpeconfig.source_configuration("teamstk", hosts="aibspi:2181", fetch_logging_config=False)
-
-
-def make_source_section():
-    hostname = socket.gethostname()
-    section = pymsteams.cardsection()
-    section.title("Source")
-    # section.addFact('application', logging.getLogger().handlers[0].get_name())
-    section.addFact('rig id', os.getenv("aibs_rig_id", "unknown"))
-    section.addFact('comp id', os.getenv("aibs_comp_id", "unknown"))
-    section.addFact('hostname', hostname)
-    section.addFact("ip address", socket.gethostbyname(hostname))
-
-    return section
+########################################################################################################################
+#
+#      Configuration
+#
+########################################################################################################################
 
 
-def alert(title, message, error=False, webhook='default', links=()):
+config = mpeconfig.source_configuration("teamstk", hosts="localhost:2181", fetch_logging_config=False)
+
+
+########################################################################################################################
+#
+#       Alerts
+#
+########################################################################################################################
+
+
+def alert(title: str, description: str, tags: Optional[List[str]]):
     """
-    Sends a Teams Messenger cqrd
+    Send a default alert. Default alert format:
+        - Title
+        - Description
+        - Tags (optional)
+
     Args:
-        title: The title of the card
-        message: Main text to display
-        error: boolean [False]  While toggle the color of the alert to red if true
-        webhook: URL [default] what teams channel are you using?
-        links: tuple of pairs.  Example ([Link Text, Link URL],)
+        title: Title of alert
+        description: Description of alert
+        tags: Optional tags (system engineers)
+    """
+    card = AdaptiveCard(title)
+    card.add_description(description)
 
-    Returns:  Boolean for success or fail
+    # Add optional tags
+    if not tags:
+        card.add_tags(tags)
 
+    webhook = config['webhooks']['logserver']
+
+    send_teams_alert(card, webhook)
+
+
+def alert_logserver(title: str, description: str, rig_id: str, log_link: str, tags: Optional[List[str]]):
+    """
+    Send a log alert. Log alert format:
+        - Title
+        - Description
+        - Log Info
+        - Tags (optional)
+        - Link
+
+    Args:
+        title: Title of alert
+        description: Description of alert
+        rig_id: Rig ID associated with log
+        log_link: Logserver link
+        tags: Optional tags (system engineers)
+    """
+    card = AdaptiveCard(title)
+    card.add_description(description)
+    card.add_log_info(rig_id, log_link)
+
+    # Add optional tags
+    if tags:
+        card.add_tags(tags)
+
+    card.add_link_button(("log link", log_link))
+
+    # Get webhook
+    webhook = config['webhooks']['logserver']
+
+    # Send adaptive card to teams
+    send_teams_alert(card, webhook)
+
+
+########################################################################################################################
+#
+#       Helpers
+#
+########################################################################################################################
+
+
+def check_frequency() -> bool:
+    """
+    Checks the frequency of alerts being sent to teams
+
+    Returns: True if within frequency limit, else False
     """
     current = datetime.datetime.now()
-    if alert.timestamps:
+    if check_frequency.timestamps:
         try:
-            average = len(alert.timestamps) / (current - alert.timestamps[-1]).total_seconds()
-            if average > alert.freq:
+            average = len(check_frequency.timestamps) / (current - check_frequency.timestamps[-1]).total_seconds()
+            if average > check_frequency.freq:
                 logging.warning(
-                    f"You are sending messages too frequently.  Avg Freq: {average}.  Max Freq: {alert.freq}")
+                    f"You are sending messages too frequently. Avg Freq: {average}. Max Freq: {check_frequency.freq}")
                 return False
         except ZeroDivisionError:
             pass
-    alert.timestamps.append(current)
-
-    if webhook not in config['webhooks']:
-        logging.warning(f"Could not find webhook {webhook}.  Using default.")
-        webhook = 'default'
-    url = config['webhooks'].get(webhook, "default")
-
-    connector = pymsteams.connectorcard(url)
-    connector.title(title)
-    connector.text(message)
-    if error:
-        connector.color("#FF0000")
-    connector.addSection(make_source_section())
-
-    for link in links:
-        connector.addLinkButton(link[0], link[1])
-
-    try:
-        connector.send()
-    except Exception as e:
-        logging.error(f"Failed to send teams alert: {e}")
-        logging.error(f"The follow message failed to make it to teams {webhook}: {title}, {message}")
-        return False
+    check_frequency.timestamps.append(current)
     return True
 
 
+def send_teams_alert(adaptive_card: AdaptiveCard, webhook: str):
+    """
+    Sends an alert to teams
 
-alert.timestamps = deque(maxlen=max(1, int(config['max_freq_hz'])))
-alert.freq = config['max_freq_hz']
+    Args:
+        adaptive_card: Adaptive card object
+        webhook: webhook link
+    """
+    if check_frequency():
+        try:
+            response = requests.post(webhook, json=adaptive_card.json)
+        except requests.exceptions.RequestException as e:
+            logging.error(f"Failed to send teams alert: {e}")
+            logging.error(f"The following message failed to make it to teams {webhook}: {adaptive_card.body}")
+
+
+check_frequency.timestamps = deque(maxlen=max(1, int(config['max_freq_hz'])))
+check_frequency.freq = config['max_freq_hz']
+
+
+########################################################################################################################
+#
+#       Test
+#
+########################################################################################################################
+
+
+# Testing code...
+title_test = "TEST: a run completed and we recorded failure"
+description_test = "Keith/Heston Help"
+rig_id_test = "BEH.TEST"
+log_link_test = "http://eng-tools/test"
+tags_test = ["jessy.liao@alleninstitute.org", "fakeperson@alleninstitute.org", "bademail@foopy.foop"]
+
+alert_logserver(title_test, description_test, rig_id_test, log_link_test, tags_test)
