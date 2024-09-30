@@ -20,6 +20,7 @@ from yaml.parser import ParserError
 
 from . config_server import ConfigServer
 from . log import WebHandler, setup_logging, default_logging_dict  # noqa  for backwards compatiblity
+from . utility import ensure_path
 
 resource_path = f"{os.path.dirname(__file__)}/resources"
 
@@ -114,7 +115,6 @@ def source_configuration(
             cache_remote_config(project_config, local_config_path)
 
         if fetch_logging_config:
-            ensure_path(os.path.expandvars(local_log_path))
             log_config = compile_remote_configuration(zk, project_name, "logging_v2", rig_id=rig_id, comp_id=comp_id)
             setup_logging(project_name, os.path.expandvars(local_log_path), log_config, send_start_log, version=version,
                           rig_id=rig_id,
@@ -123,18 +123,6 @@ def source_configuration(
             cache_remote_config(log_config, local_log_path)
 
         return project_config
-
-
-def ensure_path(path: str):
-    """
-    if the path for logging and configuration storage does not exist, make it.  Logging configuration will fail if
-    the directory does not exist.
-    :param path: A path to check and create
-    """
-
-    directory = os.path.dirname(path)
-    if not os.path.exists(directory):
-        os.makedirs(directory)
 
 
 def build_local_configuration(

@@ -11,6 +11,7 @@ import traceback
 from hashlib import md5
 
 from queue import Queue
+from . utility import ensure_path
 
 default_logging_dict = """
 disable_existing_loggers: true
@@ -117,6 +118,9 @@ def setup_logging(project_name: str, local_log_path: str, log_config: dict, send
     handler.level = logging.INFO
 
     for handler in logging.getLogger().handlers:
+        # Ensure file/path exists for file related handlers
+        if hasattr(handler, "baseFilename"):
+            ensure_path(handler.baseFilename)
         handler.set_name(project_name)
 
     for level_name, level_no in logging_level_map.items():
