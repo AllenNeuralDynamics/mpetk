@@ -20,7 +20,6 @@ from yaml.parser import ParserError
 
 from . config_server import ConfigServer
 from . log import WebHandler, setup_logging, default_logging_dict  # noqa  for backwards compatiblity
-from . utility import ensure_path
 
 resource_path = f"{os.path.dirname(__file__)}/resources"
 
@@ -111,7 +110,7 @@ def source_configuration(
             project_config = compile_remote_configuration(zk, project_name, "configuration", rig_id=rig_id,
                                                           comp_id=comp_id, serialization=serialization)
             local_log_path, local_config_path = get_platform_paths(project_config, project_name)
-            ensure_path(local_config_path)
+            os.makedirs(os.path.dirname(local_config_path), exist_ok=True)
             cache_remote_config(project_config, local_config_path)
 
         if fetch_logging_config:

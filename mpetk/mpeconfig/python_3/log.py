@@ -11,7 +11,6 @@ import traceback
 from hashlib import md5
 
 from queue import Queue
-from . utility import ensure_path
 
 default_logging_dict = """
 disable_existing_loggers: true
@@ -98,7 +97,7 @@ def setup_logging(project_name: str, local_log_path: str, log_config: dict, send
                 handlers["file_handler"]["filename"] = f"{logfile}.log"
 
             # Create directory if it does not exist (needed or else logging configuration will fail)
-            ensure_path(handlers[handler]["filename"])
+            os.makedirs(os.path.dirname(handlers[handler]["filename"]), exist_ok=True)
 
     session_parts = [str(datetime.datetime.now()), platform.node(), str(os.getpid())]
     aibs_session = md5((''.join(session_parts)).encode("utf-8")).hexdigest()[:7]
@@ -125,9 +124,6 @@ def setup_logging(project_name: str, local_log_path: str, log_config: dict, send
             2. logging_v2" from a custom project [Optional]
     """
     logging.config.dictConfig(log_config)
-
-    for handler in logging.getLogger().handlers:
-        handler.set_name(project_name)
 
     for level_name, level_no in logging_level_map.items():
         def level_func(message, level=level_no, *args, **kws):
