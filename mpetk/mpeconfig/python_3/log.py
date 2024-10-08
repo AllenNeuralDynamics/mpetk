@@ -86,8 +86,18 @@ def setup_logging(project_name: str, local_log_path: str, log_config: dict, send
     :param comp_id: Comp ID Override
     :param always_pass_exc_info: whether to always check for exc_info
     """
-    logfile = f"{os.path.dirname(local_log_path)}/{project_name}"
-    log_config["handlers"]["file_handler"]["filename"] = f"{logfile}.log"
+
+    # Process all handlers from default logging configs + custom project logging configs
+    handlers = log_config["handlers"]
+    for handler in handlers:
+        # Configure all file handlers
+        if "FileHandler" in handlers[handler]["class"] and "filename" in handlers[handler]:
+            if handler == "file_handler":  # Default handler, insert project name to directory path
+                logfile = f"{os.path.dirname(local_log_path)}/{project_name}"
+                handlers["file_handler"]["filename"] = f"{logfile}.log"
+
+            # Create directory if it does not exist (needed or else logging configuration will fail)
+            os.makedirs(os.path.dirname(handlers[handler]["filename"]), exist_ok=True)
 
     session_parts = [str(datetime.datetime.now()), platform.node(), str(os.getpid())]
     aibs_session = md5((''.join(session_parts)).encode("utf-8")).hexdigest()[:7]
@@ -107,17 +117,13 @@ def setup_logging(project_name: str, local_log_path: str, log_config: dict, send
         if isinstance(record.msg, dict):
             record.msg = ", ".join([str(item) for keyval in record.msg.items() for item in keyval])
         return record
-
     logging.setLogRecordFactory(record_factory)
+
+    """ Uses dictionary to configure the logging module. Dictionary pulls info config from:
+            1. defaults: defined above (caches locally after running once) OR pulled from local config file
+            2. logging_v2" from a custom project [Optional]
+    """
     logging.config.dictConfig(log_config)
-
-    host = log_config["handlers"]["web_handler"]["host"]
-    port = log_config["handlers"]["web_handler"]["port"]
-    handler = WebHandler(host, int(port))
-    handler.level = logging.INFO
-
-    for handler in logging.getLogger().handlers:
-        handler.set_name(project_name)
 
     for level_name, level_no in logging_level_map.items():
         def level_func(message, level=level_no, *args, **kws):
