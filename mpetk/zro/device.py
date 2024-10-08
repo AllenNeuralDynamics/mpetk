@@ -35,7 +35,7 @@ from .error import ZroError
 from .misc import get_address, is_valid_ipv4_address
 
 
-__version__ = "0.5.2.dev1"
+__version__ = "0.5.2.dev2"
 class RemoteObject(object):
     """
     Remote object device designed to be extended.  It serializes responses to
