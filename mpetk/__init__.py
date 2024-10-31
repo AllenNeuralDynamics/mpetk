@@ -6,7 +6,7 @@ from . import zro
 from . import teams
 from pykeepass import PyKeePass
 
-__version__ = '0.5.2.dev2'
+__version__ = '0.5.2.dev3'
 
 
 def kp_db(key_file=r'//allen/aibs/mpe/keepass/sipe_sw_passwords.kdbx',

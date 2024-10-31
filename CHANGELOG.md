@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.5.2.dev3 (2024-10-31)
+* Tweak various things so unit tests with mpetk on github work
+* Add basic pykeepass functions
+
 ## 0.5.1.dev0 (2024-03-18)
 * Logging updates
     * log functions now accept a dict to be comma-separated for the log server
