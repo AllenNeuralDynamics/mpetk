@@ -74,5 +74,5 @@ def alert(title, message, error=False, webhook='default', links=()):
 
 
 
-alert.timestamps = deque(maxlen=max(1, int(config['max_freq_hz'])))
-alert.freq = config['max_freq_hz']
+alert.timestamps = deque(maxlen=max(1, int(config.get('max_freq_hz',0.1))))
+alert.freq = config.get('max_freq_hz',0.1)
