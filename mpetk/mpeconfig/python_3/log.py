@@ -102,8 +102,8 @@ def setup_logging(project_name: str, local_log_path: str, log_config: dict, send
         record.version = version
         record.project = project_name
         record.log_session = aibs_session
-        if type(record.msg) is str:
-            record.msg = record.msg if record.msg and record.msg[-1] == ',' else record.msg + ','
+        # if type(record.msg) is str: # This is added also by the logserver so it shouldn't be here
+        #     record.msg = record.msg if record.msg and record.msg[-1] == ',' else record.msg + ','
         if isinstance(record.msg, dict):
             record.msg = ", ".join([str(item) for keyval in record.msg.items() for item in keyval])
         return record
