@@ -1,3 +1,5 @@
+from typing import Optional
+
 from . import mpeconfig
 from . import piddl
 from . import zro
@@ -15,7 +17,7 @@ def kp_db(key_file=r'//allen/aibs/mpe/keepass/sipe_sw_passwords.kdbx',
 
 def kp_query(key_file=r'//allen/aibs/mpe/keepass/sipe_sw_passwords.kdbx',
              db_file=r'c:\ProgramData\AIBS_MPE\.secrets\sipe_sw_passwords.kdbx',
-             query: dict[str, any] | None =None):
+             query: Optional[dict[str, any]]=None):
 
 
     keepass = kp_db(key_file, db_file)

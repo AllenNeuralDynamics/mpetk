@@ -26,7 +26,11 @@ class ConfigServer(KazooClient):
             self.delete(key)
 
     def __enter__(self):
-        self.start()
+        try:
+            self.start()
+        except KazooTimeoutError:
+            pass
+
         return self
 
     def __exit__(self, exception_type, exception_value, traceback):
