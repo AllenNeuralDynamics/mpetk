@@ -82,7 +82,7 @@ if __name__ == '__main__':
             'tornado~=6.4',
             'urllib3~=2.2.1',
             'watchdog~=4.0.0',
-            'pykeepass~=4.1.0'
+            'pykeepass~=4.0.7'
         ],
         dependency_links=[],
         zip_safe=True,
