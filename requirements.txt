@@ -10,5 +10,3 @@ tornado~=6.4
 urllib3~=2.2.1
 watchdog~=4.0.0
 pykeepass~=4.0.7
-zmq~=0.0.0
-setuptools~=75.2.0
